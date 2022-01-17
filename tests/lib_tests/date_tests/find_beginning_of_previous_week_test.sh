@@ -26,6 +26,21 @@ source "${date_sh}"
 
 # MARK - Test
 
+dates=("2022-01-10")
+dates+=("2022-01-11")
+dates+=("2022-01-12")
+dates+=("2022-01-13")
+dates+=("2022-01-14")
+dates+=("2022-01-15")
+dates+=("2022-01-16")
 
+expected="2022-01-03"
 
-fail "IMPLEMENT ME!"
+for date in "${dates[@]}" ; do
+  actual="$( find_beginning_of_previous_week "${date}" )"
+  assert_equal "${expected}" "${actual}"
+done
+
+actual="$( find_beginning_of_previous_week "2022-01-17" )"
+expected="2022-01-10"
+assert_equal "${expected}" "${actual}"
