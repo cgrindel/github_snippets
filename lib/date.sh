@@ -24,15 +24,20 @@ find_beginning_of_week(){
   "${cmd[@]}"
 }
 
+find_beginning_of_previous_week() {
+  local date="${1:-}"
+  local beginning_of_week="$( find_beginning_of_week "${date:-}" )"
+  days_before 7 "${beginning_of_week}"
+}
 
-days_ago() {
-  local days="${1}"
+days_before() {
+  local days=${1}
   local from_date="${2:-}"
   args=( do_date_cmd )
   # Days ago math
   cmd+=( "-v-${days}d" )
   # Input a specific date
-  [[ -n "${from_date}" ]] && cmd+=( -f "${std_date_format}" "${from_date}" )
+  [[ -n "${from_date}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${from_date}" )
   # Print out the date as YYYY-MM-DD
   cmd+=( "+${std_date_format}")
   "${cmd[@]}"
