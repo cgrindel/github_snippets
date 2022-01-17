@@ -3,6 +3,9 @@
 # date -ju -v-1d -f "%Y-%m-%d" 2022-01-03 "+%Y-%m-%d"
 
 std_date_format="%Y-%m-%d"
+std_date_format_output="+${std_date_format}"
+# Add input value after expanding these args
+std_date_format_input_args=(-f "${std_date_format}")
 
 do_date_cmd() {
   # BSD date (i.e. MacOS)
@@ -39,10 +42,6 @@ days_ago() {
 beginning_of_week(){
   # Beginning of this week. It will return today, if today is Monday.
   mon
-
-}
-
-last_week_started_on() {
 
 }
 
