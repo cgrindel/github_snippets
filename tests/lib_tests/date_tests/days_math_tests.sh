@@ -24,7 +24,21 @@ date_sh="$(rlocation "${date_sh_location}")" || \
 source "${date_sh}"
 
 
-# MARK - Test
+# MARK - Test days_math
+
+date="2022-01-10"
+
+actual="$( days_math 0 "${date}" )"
+assert_equal "2022-01-10" "${actual}" "days_math 0"
+
+actual="$( days_math "-1" "${date}" )"
+assert_equal "2022-01-09" "${actual}" "days_math -1"
+
+actual="$( days_math "+1" "${date}" )"
+assert_equal "2022-01-11" "${actual}" "days_math +1"
+
+
+# MARK - Test days_before
 
 date="2022-01-17"
 
@@ -42,3 +56,17 @@ for (( i = 0; i < ${#expected_values[@]}; i++ )); do
   actual="$(days_before "${i}" "${date}")"
   assert_equal "${expected}" "${actual}"
 done
+
+
+# MARK - Test days_after
+
+date="2022-01-10"
+
+actual="$( days_after 0 "${date}" )"
+assert_equal "2022-01-10" "${actual}" "days_after 0"
+
+actual="$( days_after "1" "${date}" )"
+assert_equal "2022-01-11" "${actual}" "days_after 1"
+
+actual="$( days_after "2" "${date}" )"
+assert_equal "2022-01-12" "${actual}" "days_after 2"

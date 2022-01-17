@@ -30,17 +30,48 @@ find_beginning_of_previous_week() {
   days_before 7 "${beginning_of_week}"
 }
 
-days_before() {
+days_math() {
+  # E.g. -1, +2
   local days=${1}
   local from_date="${2:-}"
   cmd=( do_date_cmd )
-  # Days ago math; Only attempt the math if the days value is greater than 0.
-  [[ ${days} > 0 ]] && cmd+=( "-v-${days}d" )
+  # Only attempt the math if the days value is greater than 0.
+  [[ ${days} != 0 ]] && cmd+=( "-v${days}d" )
   # Input a specific date
   [[ -n "${from_date}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${from_date}" )
   # Print out the date as YYYY-MM-DD
   cmd+=( "${std_date_format_output}" )
   # Execute the command
   "${cmd[@]}"
+}
+
+days_before() {
+  local days=${1}
+  local from_date="${2:-}"
+  days_math "-${days}" "${from_date:-}"
+  # cmd=( do_date_cmd )
+  # # Days ago math; Only attempt the math if the days value is greater than 0.
+  # [[ ${days} > 0 ]] && cmd+=( "-v-${days}d" )
+  # # Input a specific date
+  # [[ -n "${from_date}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${from_date}" )
+  # # Print out the date as YYYY-MM-DD
+  # cmd+=( "${std_date_format_output}" )
+  # # Execute the command
+  # "${cmd[@]}"
+}
+
+days_after() {
+  local days=${1}
+  local from_date="${2:-}"
+  days_math "+${days}" "${from_date:-}"
+  # cmd=( do_date_cmd )
+  # # Days ago math; Only attempt the math if the days value is greater than 0.
+  # [[ ${days} > 0 ]] && cmd+=( "-v-${days}d" )
+  # # Input a specific date
+  # [[ -n "${from_date}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${from_date}" )
+  # # Print out the date as YYYY-MM-DD
+  # cmd+=( "${std_date_format_output}" )
+  # # Execute the command
+  # "${cmd[@]}"
 }
 

@@ -67,14 +67,15 @@ while (("$#")); do
   esac
 done
 
+# [[ ${#args[@]} > 0 ]] && target_date="${args[0]}"
+
 
 # MARK - Retrieve the closed PRs for the past week.
 
 gh_username="$( get_gh_username )"
 
-# DEBUG BEGIN
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") gh_username: ${gh_username}" 
-# DEBUG END
+begin_date="$( find_beginning_of_previous_week )"
+end_date
 
 # closed_prs_result="$(gh api -X GET search/issues -f q="state:closed type:pr author:${gh_username}")"
 closed_prs_result="$(search_prs "${gh_username}" "2022-01-10")"
