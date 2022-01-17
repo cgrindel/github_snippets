@@ -11,3 +11,13 @@ sh_test(
         "@cgrindel_bazel_starlib//shlib/lib:assertions",
     ],
 )
+
+sh_test(
+    name = "find_beginning_of_week_test",
+    srcs = ["find_beginning_of_week_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)

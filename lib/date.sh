@@ -15,6 +15,16 @@ do_date_cmd() {
   "${cmd[@]}"
 }
 
+find_beginning_of_week(){
+  local date="${1:-}"
+  # Beginning of this week. It will return today, if today is Monday.
+  cmd=( do_date_cmd -v-mon )
+  [[ -n "${date:-}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${date}" )
+  cmd+=( "${std_date_format_output}" )
+  "${cmd[@]}"
+}
+
+
 days_ago() {
   local days="${1}"
   local from_date="${2:-}"
@@ -37,11 +47,5 @@ days_ago() {
   # # Print out the date as YYYY-MM-DD
   # cmd+=( "+${std_date_format}")
   # "${cmd[@]}"
-}
-
-beginning_of_week(){
-  # Beginning of this week. It will return today, if today is Monday.
-  mon
-
 }
 
