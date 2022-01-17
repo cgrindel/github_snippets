@@ -6,6 +6,7 @@ sh_binary(
     name = "generate_weekly_snippets",
     srcs = ["generate_weekly_snippets.sh"],
     deps = [
+        "//lib:date",
         "@bazel_tools//tools/bash/runfiles",
         "@cgrindel_bazel_starlib//shlib/lib:fail",
         "@cgrindel_bazel_starlib//shlib/lib:github",

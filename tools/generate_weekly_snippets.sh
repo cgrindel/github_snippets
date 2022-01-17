@@ -24,19 +24,29 @@ github_sh="$(rlocation "${github_sh_location}")" || \
   (echo >&2 "Failed to locate ${github_sh_location}" && exit 1)
 source "${github_sh}"
 
+date_sh_location=cgrindel_github_snippets/lib/date.sh
+date_sh="$(rlocation "${date_sh_location}")" || \
+  (echo >&2 "Failed to locate ${date_sh_location}" && exit 1)
+source "${date_sh}"
+
 # MARK - Functions
 
-search_prs_for_week() {
-  local author="${1}"
-  local begin_closed_on="${2:-}"
-  local end_closed_on="${3:-}"
-  query_args=("state:closed" "type:pr")
-  query_args+=("author:${author}")
-  [[ -n "${begin_closed_on:-}" ]] && query_args+=("closed:>${begin_closed_on}")
-  [[ -n "${end_closed_on:-}" ]] && query_args+=("closed:<${end_closed_on}")
-  query_args_str="${query_args[@]}"
+search_prs() {
+  query_args_str="${@}"
   gh api -X GET search/issues -f q="${query_args_str}"
 }
+
+# search_prs_for_week() {
+#   local author="${1}"
+#   local begin_closed_on="${2:-}"
+#   local end_closed_on="${3:-}"
+#   query_args=("state:closed" "type:pr")
+#   query_args+=("author:${author}")
+#   [[ -n "${begin_closed_on:-}" ]] && query_args+=("closed:>${begin_closed_on}")
+#   [[ -n "${end_closed_on:-}" ]] && query_args+=("closed:<${end_closed_on}")
+#   query_args_str="${query_args[@]}"
+#   gh api -X GET search/issues -f q="${query_args_str}"
+# }
 
 # MARK - Process Args
 
@@ -69,16 +79,21 @@ done
 
 # [[ ${#args[@]} > 0 ]] && target_date="${args[0]}"
 
+cd "${BUILD_WORKSPACE_DIRECTORY}"
 
 # MARK - Retrieve the closed PRs for the past week.
 
 gh_username="$( get_gh_username )"
 
 begin_date="$( find_beginning_of_previous_week )"
-end_date
+end_date="$( days_after 7 "${begin_date}" )"
+closed_prs_result="$(
+  search_prs "type:pr" "state:closed" "author:${gh_username}" \
+    "closed:>=${begin_date}" "closed:<${end_date}"
+)"
 
 # closed_prs_result="$(gh api -X GET search/issues -f q="state:closed type:pr author:${gh_username}")"
-closed_prs_result="$(search_prs "${gh_username}" "2022-01-10")"
+# closed_prs_result="$(search_prs "${gh_username}" "2022-01-10")"
 
-# echo "${closed_prs_result}" | jq '.items | length'
-echo "${closed_prs_result}" | jq '.items[0]'
+echo "${closed_prs_result}" | jq '.items | length'
+# echo "${closed_prs_result}" | jq '.items[0]'
