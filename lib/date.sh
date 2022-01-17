@@ -33,24 +33,14 @@ find_beginning_of_previous_week() {
 days_before() {
   local days=${1}
   local from_date="${2:-}"
-  args=( do_date_cmd )
-  # Days ago math
-  cmd+=( "-v-${days}d" )
+  cmd=( do_date_cmd )
+  # Days ago math; Only attempt the math if the days value is greater than 0.
+  [[ ${days} > 0 ]] && cmd+=( "-v-${days}d" )
   # Input a specific date
   [[ -n "${from_date}" ]] && cmd+=( "${std_date_format_input_args[@]}" "${from_date}" )
   # Print out the date as YYYY-MM-DD
-  cmd+=( "+${std_date_format}")
+  cmd+=( "${std_date_format_output}" )
+  # Execute the command
   "${cmd[@]}"
-
-  # # BSD date (i.e. MacOS)
-  # # Don't set the date and output date in UTC
-  # cmd=( date -ju )
-  # # Days ago math
-  # cmd+=( "-v-${days}d" )
-  # # Input a specific date
-  # [[ -n "${from_date}" ]] && cmd+=( -f "${std_date_format}" "${from_date}" )
-  # # Print out the date as YYYY-MM-DD
-  # cmd+=( "+${std_date_format}")
-  # "${cmd[@]}"
 }
 

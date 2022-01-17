@@ -26,6 +26,19 @@ source "${date_sh}"
 
 # MARK - Test
 
+date="2022-01-17"
 
+expected_values=("2022-01-17")
+expected_values+=("2022-01-16")
+expected_values+=("2022-01-15")
+expected_values+=("2022-01-14")
+expected_values+=("2022-01-13")
+expected_values+=("2022-01-12")
+expected_values+=("2022-01-11")
+expected_values+=("2022-01-10")
 
-fail "IMPLEMENT ME!"
+for (( i = 0; i < ${#expected_values[@]}; i++ )); do
+  expected="${expected_values[$i]}"
+  actual="$(days_before "${i}" "${date}")"
+  assert_equal "${expected}" "${actual}"
+done
