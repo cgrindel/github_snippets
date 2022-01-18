@@ -40,7 +40,13 @@ import "github" as github; github::format_pr_body
 # Results in empty body
 import "github" as github; github::format_pr_body
 "Closes #123"
-""
+null
+
+# Input is null
+import "github" as github; github::format_pr_body
+null
+null
+
 
 # MARK - pr_to_md
 
@@ -53,3 +59,8 @@ import "github" as github; github::pr_to_md
 import "github" as github; github::pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr","body":"- This is the body."}
 "- [This is the title.](https://url_to_pr)\n  - This is the body."
+
+# Body evaluates to empty string
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr","body":""}
+"- [This is the title.](https://url_to_pr)"
