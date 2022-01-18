@@ -9,7 +9,8 @@ def format_pr_body:
     select(. != "") |
     select(test("\\bClose[sd]?\\s+[#][0-9]+"; "ix") | not) |
     select(test("\\bResolve[sd]?\\s+[#][0-9]+"; "ix") | not) |
-    select(test("\\bRelated\\s+to\\s+[#][0-9]+"; "ix") | not)
+    select(test("\\bRelated\\s+to\\s+[#][0-9]+"; "ix") | not) | 
+    "  " + .
   ] |
   join("\n")
   ;
