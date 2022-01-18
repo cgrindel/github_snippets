@@ -29,28 +29,26 @@ date_sh="$(rlocation "${date_sh_location}")" || \
   (echo >&2 "Failed to locate ${date_sh_location}" && exit 1)
 source "${date_sh}"
 
+pr_search_result_to_md_jq_location=cgrindel_github_snippets/tools/pr_search_result_to_md.jq
+pr_search_result_to_md_jq="$(rlocation "${pr_search_result_to_md_jq_location}")" || \
+  (echo >&2 "Failed to locate ${pr_search_result_to_md_jq_location}" && exit 1)
+
 # MARK - Functions
 
 search_prs() {
   query_args_str="${@}"
-  # IFS='+' query_args_str="${*}"
-  # DEBUG BEGIN
-  echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") query_args_str: ${query_args_str}" 
-  # DEBUG END
   gh api -X GET search/issues -f q="${query_args_str}"
 }
 
-# search_prs_for_week() {
-#   local author="${1}"
-#   local begin_closed_on="${2:-}"
-#   local end_closed_on="${3:-}"
-#   query_args=("state:closed" "type:pr")
-#   query_args+=("author:${author}")
-#   [[ -n "${begin_closed_on:-}" ]] && query_args+=("closed:>${begin_closed_on}")
-#   [[ -n "${end_closed_on:-}" ]] && query_args+=("closed:<${end_closed_on}")
-#   query_args_str="${query_args[@]}"
-#   gh api -X GET search/issues -f q="${query_args_str}"
+# pr_to_md() {
+#   local pr_json="${1}"
+#   echo "${pr_json}"
+#   # echo "${pr_json}" | jq -r '
+# # "- [\(.title)](\(.html_url))"
+# # '
 # }
+# # Need to export the function so that we can use it with xargs later.
+# export -f pr_to_md
 
 # MARK - Process Args
 
@@ -94,19 +92,17 @@ end_date="$( days_after 7 "${begin_date}" )"
 closed_prs_result="$(
   search_prs "type:pr" "state:closed" "author:${gh_username}" \
     "closed:${begin_date}..${end_date}"
-  # search_prs "type:pr" "state:closed" "author:${gh_username}" \
-  #   "closed:>=${begin_date}"
-  # search_prs "type:pr" "state:closed" "author:${gh_username}" \
-  #   "closed:>=${begin_date}" "closed:<${end_date}"
 )"
 
-# closed_prs_result="$(gh api -X GET search/issues -f q="state:closed type:pr author:${gh_username}")"
-# closed_prs_result="$(search_prs "${gh_username}" "2022-01-10")"
-
 # DEBUG BEGIN
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") closed_prs_result: ${closed_prs_result}" 
+# echo "${closed_prs_result}" | jq -r '"Total Count: \(.total_count)"'
+# echo "${closed_prs_result}" | jq '.total_count'
+# echo "${closed_prs_result}" | jq '.items | length'
+# # echo "${closed_prs_result}" | jq '.items[0]'
+echo "${closed_prs_result}" | jq '.items[0]'
 # DEBUG END
 
-echo "${closed_prs_result}" | jq '.total_count'
-echo "${closed_prs_result}" | jq '.items | length'
-# echo "${closed_prs_result}" | jq '.items[0]'
+# echo "${closed_prs_result}" | jq -c '.items[]' | xargs -L 1 bash -c 'pr_to_md "$@"' _
+echo "${closed_prs_result}" | jq -c '.items[0]' 
+# echo "${closed_prs_result}" | jq -c -r '.items[0]' 
+echo "${closed_prs_result}" | jq -r -f "${pr_search_result_to_md_jq}"

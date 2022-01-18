@@ -5,6 +5,9 @@ bzlformat_pkg(name = "bzlformat")
 sh_binary(
     name = "generate_weekly_snippets",
     srcs = ["generate_weekly_snippets.sh"],
+    data = [
+        "pr_search_result_to_md.jq",
+    ],
     deps = [
         "//lib:date",
         "@bazel_tools//tools/bash/runfiles",
