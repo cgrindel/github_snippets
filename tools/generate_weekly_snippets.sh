@@ -29,9 +29,9 @@ date_sh="$(rlocation "${date_sh_location}")" || \
   (echo >&2 "Failed to locate ${date_sh_location}" && exit 1)
 source "${date_sh}"
 
-pr_search_result_to_md_jq_location=cgrindel_github_snippets/lib/jq/pr_search_result_to_md.jq
-pr_search_result_to_md_jq="$(rlocation "${pr_search_result_to_md_jq_location}")" || \
-  (echo >&2 "Failed to locate ${pr_search_result_to_md_jq_location}" && exit 1)
+github_jq_location=cgrindel_github_snippets/lib/jq/github.jq
+github_jq="$(rlocation "${github_jq_location}")" || \
+  (echo >&2 "Failed to locate ${github_jq_location}" && exit 1)
 
 # MARK - Functions
 
@@ -103,18 +103,20 @@ closed_prs_result="$(
 echo "${closed_prs_result}" | jq '.items[0]'
 # DEBUG END
 
-# echo "${closed_prs_result}" | jq -r -f "${pr_search_result_to_md_jq}"
-# echo "${closed_prs_result}" | jq -r 'import "./pr_search_result_to_md" as lib; .items[] | lib::pr_to_md'
-# echo "${closed_prs_result}" | jq -r 'import "./'"${pr_search_result_to_md_jq}"'" as lib; .items[] | lib::pr_to_md'
+# echo "${closed_prs_result}" | jq -r -f "${github_jq}"
+# echo "${closed_prs_result}" | jq -r 'import "./github" as lib; .items[] | lib::pr_to_md'
+# echo "${closed_prs_result}" | jq -r 'import "./'"${github_jq}"'" as lib; .items[] | lib::pr_to_md'
 
 # DEBUG BEGIN
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") pr_search_result_to_md_jq_location: ${pr_search_result_to_md_jq_location}" 
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") pr_search_result_to_md_jq: ${pr_search_result_to_md_jq}" 
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") github_jq_location: ${github_jq_location}" 
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") github_jq: ${github_jq}" 
 echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") PWD: ${PWD}" 
 tree  "${starting_dir}" >&2
 set -x
 # DEBUG END
-# echo "${closed_prs_result}" | jq -r 'import "'"${pr_search_result_to_md_jq}"'" as lib; .items[] | lib::pr_to_md'
+# echo "${closed_prs_result}" | jq -r 'import "'"${github_jq}"'" as lib; .items[] | lib::pr_to_md'
 
-jq_lib_dir="$(dirname "${pr_search_result_to_md_jq}")"
-echo "${closed_prs_result}" | jq -r -L "${jq_lib_dir}" 'import "pr_search_result_to_md" as lib; .items[] | lib::pr_to_md'
+jq_lib_dir="$(dirname "${github_jq}")"
+echo "${closed_prs_result}" | jq -r -L "${jq_lib_dir}" '
+import "github" as github; .items[] | github::pr_to_md
+'
