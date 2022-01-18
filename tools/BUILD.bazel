@@ -6,7 +6,7 @@ sh_binary(
     name = "generate_weekly_snippets",
     srcs = ["generate_weekly_snippets.sh"],
     data = [
-        "pr_search_result_to_md.jq",
+        "//lib/jq:modules",
     ],
     deps = [
         "//lib:date",

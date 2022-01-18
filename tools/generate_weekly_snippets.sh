@@ -29,7 +29,7 @@ date_sh="$(rlocation "${date_sh_location}")" || \
   (echo >&2 "Failed to locate ${date_sh_location}" && exit 1)
 source "${date_sh}"
 
-pr_search_result_to_md_jq_location=cgrindel_github_snippets/tools/pr_search_result_to_md.jq
+pr_search_result_to_md_jq_location=cgrindel_github_snippets/lib/jq/pr_search_result_to_md.jq
 pr_search_result_to_md_jq="$(rlocation "${pr_search_result_to_md_jq_location}")" || \
   (echo >&2 "Failed to locate ${pr_search_result_to_md_jq_location}" && exit 1)
 
