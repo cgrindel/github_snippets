@@ -48,3 +48,8 @@ import "github" as github; github::format_pr_body
 import "github" as github; github::pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr"}
 "- [This is the title.](https://url_to_pr)"
+
+# Basic, with body
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr","body":"- This is the body."}
+"- [This is the title.](https://url_to_pr)\n  - This is the body."

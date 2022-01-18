@@ -25,6 +25,3 @@ def pr_to_md:
   # Handle if body formatting returns empty/null
   if .body then "\($title_line)\n\(.body | format_pr_body)" else $title_line end
   ;
-
-# # Output each PR as markdown
-# .items[] | pr_to_md
