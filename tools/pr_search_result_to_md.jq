@@ -1,5 +1,11 @@
+def trim:
+  gsub("^\\s+|\\s+$"; "")
+  ;
+
+
 def format_pr_body: 
-  . 
+  [ . | split("\n")[] | trim | select(. != "") ] |
+  join("\n")
   ;
 
 def pr_to_md:
