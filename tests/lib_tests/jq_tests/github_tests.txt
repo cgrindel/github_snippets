@@ -1,35 +1,50 @@
-# trim: Without spaces
+# MARK - trim
+
+# Without spaces
 import "github" as github; github::trim
 "hello"
 "hello"
 
-# trim: With spaces
+# With spaces
 import "github" as github; github::trim
 "   hello   "
 "hello"
 
-# format_pr_body: Basic
+# MARK - format_pr_body
+
+# Basic
 import "github" as github; github::format_pr_body
 "- First line\n- Second line"
 "  - First line\n  - Second line"
 
-# format_pr_body: Ignore empty lines
+# Ignore empty lines
 import "github" as github; github::format_pr_body
 "  \n- First line\n\n- Second line"
 "  - First line\n  - Second line"
 
-# format_pr_body: Ignore Closes
+# Ignore Closes
 import "github" as github; github::format_pr_body
 "Closes #123\n- First line\n- Second line"
 "  - First line\n  - Second line"
 
-# format_pr_body: Ignore Resolves
+# Ignore Resolves
 import "github" as github; github::format_pr_body
 "Resolves #123\n- First line\n- Second line"
 "  - First line\n  - Second line"
 
-# format_pr_body: Results in empty body
+# Ignore Resolves
+import "github" as github; github::format_pr_body
+"Related to #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# Results in empty body
 import "github" as github; github::format_pr_body
 "Closes #123"
 ""
 
+# MARK - pr_to_md
+
+# Basic, no body
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr"}
+"- [This is the title.](https://url_to_pr)"
