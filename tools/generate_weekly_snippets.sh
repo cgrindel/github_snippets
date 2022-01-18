@@ -107,16 +107,8 @@ echo "${closed_prs_result}" | jq '.items[0]'
 # echo "${closed_prs_result}" | jq -r 'import "./github" as lib; .items[] | lib::pr_to_md'
 # echo "${closed_prs_result}" | jq -r 'import "./'"${github_jq}"'" as lib; .items[] | lib::pr_to_md'
 
-# DEBUG BEGIN
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") github_jq_location: ${github_jq_location}" 
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") github_jq: ${github_jq}" 
-echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") PWD: ${PWD}" 
-tree  "${starting_dir}" >&2
-set -x
-# DEBUG END
-# echo "${closed_prs_result}" | jq -r 'import "'"${github_jq}"'" as lib; .items[] | lib::pr_to_md'
-
 jq_lib_dir="$(dirname "${github_jq}")"
 echo "${closed_prs_result}" | jq -r -L "${jq_lib_dir}" '
-import "github" as github; .items[] | github::pr_to_md
+# import "github" as github; .items[] | github::pr_to_md
+import "github" as github; github::pr_search_response_to_md
 '

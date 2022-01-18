@@ -28,3 +28,16 @@ def pr_to_md:
   map(select(.)) |
   join("\n") 
   ;
+
+# Expects an array of PRs that are already grouped by repository_url
+def repo_prs_to_md:
+  .[0].repository_url as $repo_url |
+  map(. | pr_to_md) as $pr_mds |
+  [ $repo_url ] + $pr_mds |
+  join("\n")
+  ;
+
+
+def pr_search_response_to_md:
+  .items | group_by(.repository_url) | .[] | repo_prs_to_md
+  ;
