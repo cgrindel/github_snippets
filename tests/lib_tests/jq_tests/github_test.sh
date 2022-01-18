@@ -20,13 +20,13 @@ github_jq_location=cgrindel_github_snippets/lib/jq/github.jq
 github_jq="$(rlocation "${github_jq_location}")" || \
   (echo >&2 "Failed to locate ${github_jq_location}" && exit 1)
 
+github_tests_txt_location=cgrindel_github_snippets/tests/lib_tests/jq_tests/github_tests.txt
+github_tests_txt="$(rlocation "${github_tests_txt_location}")" || \
+  (echo >&2 "Failed to locate ${github_tests_txt_location}" && exit 1)
+
 jq_lib_dir="$(dirname "${github_jq}")"
-exec_jq() {
-  local jq_script="${1}"
-  jq -r -L "${jq_lib_dir}" "${jq_script}" <&0
-}
+
 
 # MARK - Test
 
-actual="$( echo '"  hello  "' | exec_jq 'import "github" as github; github::trim' )"
-assert_equal "hello" "${actual}"
+jq -L "${jq_lib_dir}" --run-tests < "${github_tests_txt}"

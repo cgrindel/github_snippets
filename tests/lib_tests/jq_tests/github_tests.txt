@@ -1,0 +1,35 @@
+# trim: Without spaces
+import "github" as github; github::trim
+"hello"
+"hello"
+
+# trim: With spaces
+import "github" as github; github::trim
+"   hello   "
+"hello"
+
+# format_pr_body: Basic
+import "github" as github; github::format_pr_body
+"- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# format_pr_body: Ignore empty lines
+import "github" as github; github::format_pr_body
+"  \n- First line\n\n- Second line"
+"  - First line\n  - Second line"
+
+# format_pr_body: Ignore Closes
+import "github" as github; github::format_pr_body
+"Closes #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# format_pr_body: Ignore Resolves
+import "github" as github; github::format_pr_body
+"Resolves #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# format_pr_body: Results in empty body
+import "github" as github; github::format_pr_body
+"Closes #123"
+""
+
