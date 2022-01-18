@@ -4,7 +4,14 @@ def trim:
 
 
 def format_pr_body: 
-  [ . | split("\n")[] | trim | select(. != "") ] |
+  [ . | split("\n")[] | 
+    trim | 
+    select(. != "") |
+    select(test("^Close[sd]?\\b"; "ix") | not) |
+    select(test("^Resolve[sd]?\\b"; "ix") | not) 
+    # select(test("^Close[sd]?\\b", "i") | not) 
+    # select(test("^Resolve[sd]?\\b", "i") | not)
+  ] |
   join("\n")
   ;
 
