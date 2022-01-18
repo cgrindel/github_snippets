@@ -81,6 +81,7 @@ done
 
 # [[ ${#args[@]} > 0 ]] && target_date="${args[0]}"
 
+starting_dir="${PWD}"
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
 # MARK - Retrieve the closed PRs for the past week.
@@ -102,4 +103,18 @@ closed_prs_result="$(
 echo "${closed_prs_result}" | jq '.items[0]'
 # DEBUG END
 
-echo "${closed_prs_result}" | jq -r -f "${pr_search_result_to_md_jq}"
+# echo "${closed_prs_result}" | jq -r -f "${pr_search_result_to_md_jq}"
+# echo "${closed_prs_result}" | jq -r 'import "./pr_search_result_to_md" as lib; .items[] | lib::pr_to_md'
+# echo "${closed_prs_result}" | jq -r 'import "./'"${pr_search_result_to_md_jq}"'" as lib; .items[] | lib::pr_to_md'
+
+# DEBUG BEGIN
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") pr_search_result_to_md_jq_location: ${pr_search_result_to_md_jq_location}" 
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") pr_search_result_to_md_jq: ${pr_search_result_to_md_jq}" 
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") PWD: ${PWD}" 
+tree  "${starting_dir}" >&2
+set -x
+# DEBUG END
+# echo "${closed_prs_result}" | jq -r 'import "'"${pr_search_result_to_md_jq}"'" as lib; .items[] | lib::pr_to_md'
+
+jq_lib_dir="$(dirname "${pr_search_result_to_md_jq}")"
+echo "${closed_prs_result}" | jq -r -L "${jq_lib_dir}" 'import "pr_search_result_to_md" as lib; .items[] | lib::pr_to_md'
