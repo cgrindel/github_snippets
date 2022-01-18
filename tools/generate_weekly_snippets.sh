@@ -103,6 +103,6 @@ echo "${closed_prs_result}" | jq '.items[0]'
 # DEBUG END
 
 # echo "${closed_prs_result}" | jq -c '.items[]' | xargs -L 1 bash -c 'pr_to_md "$@"' _
-echo "${closed_prs_result}" | jq -c '.items[0]' 
+# echo "${closed_prs_result}" | jq -c '.items[0]' 
 # echo "${closed_prs_result}" | jq -c -r '.items[0]' 
 echo "${closed_prs_result}" | jq -r -f "${pr_search_result_to_md_jq}"
