@@ -33,6 +33,10 @@ source "${date_sh}"
 
 search_prs() {
   query_args_str="${@}"
+  # IFS='+' query_args_str="${*}"
+  # DEBUG BEGIN
+  echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") query_args_str: ${query_args_str}" 
+  # DEBUG END
   gh api -X GET search/issues -f q="${query_args_str}"
 }
 
@@ -89,11 +93,20 @@ begin_date="$( find_beginning_of_previous_week )"
 end_date="$( days_after 7 "${begin_date}" )"
 closed_prs_result="$(
   search_prs "type:pr" "state:closed" "author:${gh_username}" \
-    "closed:>=${begin_date}" "closed:<${end_date}"
+    "closed:${begin_date}..${end_date}"
+  # search_prs "type:pr" "state:closed" "author:${gh_username}" \
+  #   "closed:>=${begin_date}"
+  # search_prs "type:pr" "state:closed" "author:${gh_username}" \
+  #   "closed:>=${begin_date}" "closed:<${end_date}"
 )"
 
 # closed_prs_result="$(gh api -X GET search/issues -f q="state:closed type:pr author:${gh_username}")"
 # closed_prs_result="$(search_prs "${gh_username}" "2022-01-10")"
 
+# DEBUG BEGIN
+echo >&2 "*** CHUCK $(basename "${BASH_SOURCE[0]}") closed_prs_result: ${closed_prs_result}" 
+# DEBUG END
+
+echo "${closed_prs_result}" | jq '.total_count'
 echo "${closed_prs_result}" | jq '.items | length'
 # echo "${closed_prs_result}" | jq '.items[0]'
