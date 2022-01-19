@@ -67,6 +67,10 @@ while (("$#")); do
       week_with_date="${2}"
       shift 2
       ;;
+    "--author")
+      author="${2}"
+      shift 2
+      ;;
     *)
       args+=("${1}")
       shift 1
@@ -79,7 +83,8 @@ done
 
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
-gh_username="$( get_gh_username )"
+# Figure out the author
+[[ -z "${author:-}" ]] && author="$( get_gh_username )"
 
 # Determine the date range
 if [[ -n "${week_with_date:-}" ]]; then
@@ -91,7 +96,7 @@ end_date="$( days_after 7 "${begin_date}" )"
 
 # Retrieve the closed PRs
 closed_prs_result="$(
-  search_prs "type:pr" "state:closed" "author:${gh_username}" \
+  search_prs "type:pr" "state:closed" "author:${author}" \
     "closed:${begin_date}..${end_date}"
 )"
 
