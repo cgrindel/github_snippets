@@ -11,9 +11,17 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
 # --- end runfiles.bash initialization v2 ---
 
+# MARK - Locate Deps
+
 assertions_sh_location=cgrindel_bazel_starlib/shlib/lib/assertions.sh
 assertions_sh="$(rlocation "${assertions_sh_location}")" || \
   (echo >&2 "Failed to locate ${assertions_sh_location}" && exit 1)
 source "${assertions_sh}"
+
+generate_weekly_snippets_sh_location=cgrindel_github_snippets/tools/generate_weekly_snippets.sh
+generate_weekly_snippets_sh="$(rlocation "${generate_weekly_snippets_sh_location}")" || \
+  (echo >&2 "Failed to locate ${generate_weekly_snippets_sh_location}" && exit 1)
+
+# MARK - Test
 
 fail "IMPLEMENT ME!"
