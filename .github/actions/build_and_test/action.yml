@@ -7,6 +7,14 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: DEBUG
+      shell: bash
+      env:
+        # The tests make use of Github-specific functionality (e.g. gh).
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        gh auth status
+
     - name: Execute Tests
       shell: bash
       env:
