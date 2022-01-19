@@ -26,4 +26,8 @@ source "${date_sh}"
 
 # MARK - Test
 
-fail "IMPLEMENT ME!"
+actual="$( get_year_from_date "2022-01-19" )"
+assert_equal "2022" "${actual}"
+
+actual="$( get_year_from_date "2023-01-19" )"
+assert_equal "2023" "${actual}"

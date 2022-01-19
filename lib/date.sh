@@ -59,5 +59,11 @@ days_after() {
 
 get_year_from_date() {
   local date="${1}"
-
+  cmd=( do_date_cmd )
+  # Input a specific date
+  cmd+=( "${std_date_format_input_args[@]}" "${date}" )
+  # Output just the year
+  cmd+=( "+%Y" )
+  # Execute the command
+  "${cmd[@]}"
 }
