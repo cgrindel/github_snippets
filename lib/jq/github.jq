@@ -39,5 +39,7 @@ def repo_prs_to_md:
 
 
 def pr_search_response_to_md:
-  .items | group_by(.repository_url) | .[] | repo_prs_to_md
+  # .items | group_by(.repository_url) | .[] | repo_prs_to_md
+  [ .items | group_by(.repository_url) | .[] | repo_prs_to_md ] |
+  join("\n\n")
   ;
