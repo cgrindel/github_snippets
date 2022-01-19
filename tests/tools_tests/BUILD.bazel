@@ -8,6 +8,13 @@ sh_test(
     data = [
         "//tools:generate_weekly_snippets",
     ],
+    env_inherit = [
+        # The HOME, GH_TOKEN, and GITHUB_TOKEN environment variables help the gh utility find
+        # its auth info.
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+        "HOME",
+    ],
     deps = [
         "@bazel_tools//tools/bash/runfiles",
         "@cgrindel_bazel_starlib//shlib/lib:assertions",

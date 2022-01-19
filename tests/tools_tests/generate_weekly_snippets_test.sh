@@ -22,6 +22,22 @@ generate_weekly_snippets_sh_location=cgrindel_github_snippets/tools/generate_wee
 generate_weekly_snippets_sh="$(rlocation "${generate_weekly_snippets_sh_location}")" || \
   (echo >&2 "Failed to locate ${generate_weekly_snippets_sh_location}" && exit 1)
 
+
+# MARK - Set Up Git Repo
+
+# Clone this repo so that we have an actual git repository for the test
+repo_dir="${PWD}/repo"
+rm -rf "${repo_dir}"
+repo_url="https://github.com/cgrindel/github_snippets"
+git clone "${repo_url}" "${repo_dir}" 2>/dev/null
+
+# Any utilities under test need to know where the workspace directory is. In
+# this case, we are faking it out by setting it to our cloned repo directory.
+export "BUILD_WORKSPACE_DIRECTORY=${repo_dir}"
+
+
 # MARK - Test
 
-fail "IMPLEMENT ME!"
+output="$( "${generate_weekly_snippets_sh}" )"
+assert_match "# Week Ending" "${output}"
+
