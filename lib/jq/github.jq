@@ -31,7 +31,7 @@ def pr_to_md:
 
 # Expects an array of PRs that are already grouped by repository_url
 def repo_prs_to_md:
-  .[0].repository_url as $repo_url |
+  "## \(.[0].repository_url)" as $repo_url |
   map(. | pr_to_md) as $pr_mds |
   [ $repo_url ] + $pr_mds |
   join("\n")

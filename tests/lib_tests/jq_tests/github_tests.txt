@@ -64,3 +64,11 @@ import "github" as github; github::pr_to_md
 import "github" as github; github::pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr","body":""}
 "- [This is the title.](https://url_to_pr)"
+
+
+# MARK - repo_prs_to_md
+
+# Basic
+import "github" as github; github::repo_prs_to_md
+[{"repository_url":"https://repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://repo_url","title": "Second PR","html_url":"https://second_pr_url"}]
+"## https://repo_url\n- [First PR](https://first_pr_url)\n- [Second PR](https://second_pr_url)"
