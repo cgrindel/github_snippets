@@ -57,3 +57,7 @@ days_after() {
   days_math "+${days}" "${from_date:-}"
 }
 
+get_year_from_date() {
+  local date="${1}"
+
+}
