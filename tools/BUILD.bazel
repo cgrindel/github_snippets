@@ -8,6 +8,7 @@ sh_binary(
     data = [
         "//lib/jq:modules",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "//lib:date",
         "@bazel_tools//tools/bash/runfiles",
