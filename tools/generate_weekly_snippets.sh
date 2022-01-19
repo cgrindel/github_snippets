@@ -63,6 +63,10 @@ while (("$#")); do
       show_usage
       exit 0
       ;;
+    "--week_with_date")
+      week_with_date="${2}"
+      shift 2
+      ;;
     *)
       args+=("${1}")
       shift 1
@@ -70,20 +74,28 @@ while (("$#")); do
   esac
 done
 
-starting_dir="${PWD}"
-cd "${BUILD_WORKSPACE_DIRECTORY}"
 
 # MARK - Retrieve the closed PRs for the past week.
 
+cd "${BUILD_WORKSPACE_DIRECTORY}"
+
 gh_username="$( get_gh_username )"
 
-begin_date="$( find_beginning_of_previous_week )"
+# Determine the date range
+if [[ -n "${week_with_date:-}" ]]; then
+  begin_date="$( find_beginning_of_week "${week_with_date}" )"
+else
+  begin_date="$( find_beginning_of_previous_week )"
+fi
 end_date="$( days_after 7 "${begin_date}" )"
+
+# Retrieve the closed PRs
 closed_prs_result="$(
   search_prs "type:pr" "state:closed" "author:${gh_username}" \
     "closed:${begin_date}..${end_date}"
 )"
 
+# Generate the markdown snippets
 jq_lib_dir="$(dirname "${github_jq}")"
 snippets="$(
   echo "${closed_prs_result}" | \
@@ -91,6 +103,7 @@ snippets="$(
       'import "github" as github; github::pr_search_response_to_md '
 )"
 
+# Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
 output="$(cat <<-EOF
 # Week Ending ${week_ending_date}
@@ -99,4 +112,5 @@ ${snippets}
 EOF
 )"
 
+# Output the markdown
 echo "${output}"

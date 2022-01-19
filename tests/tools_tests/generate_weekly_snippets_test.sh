@@ -36,8 +36,18 @@ git clone "${repo_url}" "${repo_dir}" 2>/dev/null
 export "BUILD_WORKSPACE_DIRECTORY=${repo_dir}"
 
 
-# MARK - Test
+# MARK - Test Using Defaults
 
 output="$( "${generate_weekly_snippets_sh}" )"
 assert_match "# Week Ending" "${output}"
+
+
+# MARK - Test Specifying Date for a Specific Week
+
+# 2022-01-05 is a Wed. This command should generate snippets for the week
+# ending 2022-01-09 (Sun) which is a search range of 2022-01-02 to 2022-01-10.
+output="$( "${generate_weekly_snippets_sh}" --week_with_date "2022-01-05" )"
+assert_match "# Week Ending 2022-01-09" "${output}"
+assert_match "https://github.com/cgrindel/bazel-doc/pull/15" "${output}"
+assert_match "https://github.com/cgrindel/gha_select_value/pull/2" "${output}"
 
