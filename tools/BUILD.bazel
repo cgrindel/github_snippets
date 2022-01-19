@@ -1,0 +1,18 @@
+load("@cgrindel_bazel_starlib//bzlformat:defs.bzl", "bzlformat_pkg")
+
+bzlformat_pkg(name = "bzlformat")
+
+sh_binary(
+    name = "generate_weekly_snippets",
+    srcs = ["generate_weekly_snippets.sh"],
+    data = [
+        "//lib/jq:modules",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:fail",
+        "@cgrindel_bazel_starlib//shlib/lib:github",
+    ],
+)

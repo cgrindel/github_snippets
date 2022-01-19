@@ -1,0 +1,43 @@
+load("@cgrindel_bazel_starlib//bzlformat:defs.bzl", "bzlformat_pkg")
+
+bzlformat_pkg(name = "bzlformat")
+
+sh_test(
+    name = "do_date_cmd_test",
+    srcs = ["do_date_cmd_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)
+
+sh_test(
+    name = "find_beginning_of_week_test",
+    srcs = ["find_beginning_of_week_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)
+
+sh_test(
+    name = "days_math_tests",
+    srcs = ["days_math_tests.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)
+
+sh_test(
+    name = "find_beginning_of_previous_week_test",
+    srcs = ["find_beginning_of_previous_week_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)

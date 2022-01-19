@@ -1,0 +1,95 @@
+# MARK - trim
+
+# Without spaces
+import "github" as github; github::trim
+"hello"
+"hello"
+
+# With spaces
+import "github" as github; github::trim
+"   hello   "
+"hello"
+
+# MARK - format_pr_body
+
+# Basic
+import "github" as github; github::format_pr_body
+"- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# Ignore empty lines
+import "github" as github; github::format_pr_body
+"  \n- First line\n\n- Second line"
+"  - First line\n  - Second line"
+
+# Ignore Closes
+import "github" as github; github::format_pr_body
+"Closes #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# Ignore Resolves
+import "github" as github; github::format_pr_body
+"Resolves #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# Ignore Resolves
+import "github" as github; github::format_pr_body
+"Related to #123\n- First line\n- Second line"
+"  - First line\n  - Second line"
+
+# Results in empty body
+import "github" as github; github::format_pr_body
+"Closes #123"
+null
+
+# Input is null
+import "github" as github; github::format_pr_body
+null
+null
+
+
+# MARK - pr_to_md
+
+# Basic, no body
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr"}
+"- [This is the title.](https://url_to_pr)"
+
+# Basic, with body
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr","body":"- This is the body."}
+"- [This is the title.](https://url_to_pr)\n  - This is the body."
+
+# Body evaluates to empty string
+import "github" as github; github::pr_to_md
+{"title": "This is the title.","html_url":"https://url_to_pr","body":""}
+"- [This is the title.](https://url_to_pr)"
+
+
+# MARK - repo_prs_to_md
+
+# Basic
+import "github" as github; github::repo_prs_to_md
+[{"repository_url":"https://github.com/cgrindel/repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://github.com/cgrindel/repo_url","title": "Second PR","html_url":"https://second_pr_url"}]
+"## `cgrindel/repo_url`\n- [First PR](https://first_pr_url)\n- [Second PR](https://second_pr_url)"
+
+
+# MARK - pr_search_response_to_md
+
+# Basic
+import "github" as github; github::pr_search_response_to_md
+{"items":[{"repository_url":"https://github.com/cgrindel/first_repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://github.com/cgrindel/second_repo_url","title": "Second PR","html_url":"https://second_pr_url"}]}
+"## `cgrindel/first_repo_url`\n- [First PR](https://first_pr_url)\n\n## `cgrindel/second_repo_url`\n- [Second PR](https://second_pr_url)"
+
+
+# MARK - repo_title
+
+# Found title
+import "github" as github; github::repo_title
+"https://api.github.com/repos/cgrindel/swift_toolbox"
+"Swift Toolbox `cgrindel/swift_toolbox`"
+
+# Note found title
+import "github" as github; github::repo_title
+"https://api.github.com/repos/cgrindel/does_not_exist"
+"`cgrindel/does_not_exist`"

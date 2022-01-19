@@ -1,0 +1,9 @@
+load("@cgrindel_bazel_starlib//bzlformat:defs.bzl", "bzlformat_pkg")
+
+bzlformat_pkg(name = "bzlformat")
+
+filegroup(
+    name = "modules",
+    srcs = glob(["*.jq"]),
+    visibility = ["//:__subpackages__"],
+)
