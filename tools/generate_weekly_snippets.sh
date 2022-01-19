@@ -40,15 +40,6 @@ search_prs() {
   gh api -X GET search/issues -f q="${query_args_str}"
 }
 
-# pr_to_md() {
-#   local pr_json="${1}"
-#   echo "${pr_json}"
-#   # echo "${pr_json}" | jq -r '
-# # "- [\(.title)](\(.html_url))"
-# # '
-# }
-# # Need to export the function so that we can use it with xargs later.
-# export -f pr_to_md
 
 # MARK - Process Args
 
@@ -79,8 +70,6 @@ while (("$#")); do
   esac
 done
 
-# [[ ${#args[@]} > 0 ]] && target_date="${args[0]}"
-
 starting_dir="${PWD}"
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
@@ -95,20 +84,19 @@ closed_prs_result="$(
     "closed:${begin_date}..${end_date}"
 )"
 
-# DEBUG BEGIN
-# echo "${closed_prs_result}" | jq -r '"Total Count: \(.total_count)"'
-# echo "${closed_prs_result}" | jq '.total_count'
-# echo "${closed_prs_result}" | jq '.items | length'
-# # echo "${closed_prs_result}" | jq '.items[0]'
-echo "${closed_prs_result}" | jq '.items[0]'
-# DEBUG END
-
-# echo "${closed_prs_result}" | jq -r -f "${github_jq}"
-# echo "${closed_prs_result}" | jq -r 'import "./github" as lib; .items[] | lib::pr_to_md'
-# echo "${closed_prs_result}" | jq -r 'import "./'"${github_jq}"'" as lib; .items[] | lib::pr_to_md'
-
 jq_lib_dir="$(dirname "${github_jq}")"
-echo "${closed_prs_result}" | jq -r -L "${jq_lib_dir}" '
-# import "github" as github; .items[] | github::pr_to_md
-import "github" as github; github::pr_search_response_to_md
-'
+snippets="$(
+  echo "${closed_prs_result}" | \
+    jq -r -L "${jq_lib_dir}" \
+      'import "github" as github; github::pr_search_response_to_md '
+)"
+
+week_ending_date="$(days_before 1 "${end_date}")"
+output="$(cat <<-EOF
+# Week Ending ${week_ending_date}
+
+${snippets}
+EOF
+)"
+
+echo "${output}"
