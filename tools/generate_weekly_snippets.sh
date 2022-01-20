@@ -49,9 +49,20 @@ get_usage() {
 Generate your weekly snippets using GitHub activity.
 
 Usage:
-${utility} 
+${utility} [--week_with_date <date>] [--author <author>] 
+           [--snippets_dir <directory>]
 
 Options:
+--week_with_date      Optional. Identify the week of snippets by the specified 
+                      date. It will determine the week that contains the date 
+                      and generate the snippets for that week.
+--author              Optional. The author whose PR activity should be queried.
+                      If not specified, the author is determined from the 
+                      github credentials (gh auth status).
+--snippets_dir        Optional. Specifies the directory that contains 
+                      snippets files (snippets_XXXX.md). If specified, the
+                      script will identify the target snippets file, generate 
+                      the snippets, and add them to front of the file.
 EOF
   )"
 }
