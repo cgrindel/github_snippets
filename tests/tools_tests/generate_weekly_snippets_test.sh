@@ -55,3 +55,35 @@ assert_match "# Week Ending 2022-01-09" "${output}"
 assert_match "https://github.com/cgrindel/bazel-doc/pull/15" "${output}"
 assert_match "https://github.com/cgrindel/gha_select_value/pull/2" "${output}"
 
+
+# MARK - Test Creating a New Snippet File
+
+snippets_dir="${PWD}/snippets"
+rm -rf "${snippets_dir}"
+mkdir -p "${snippets_dir}"
+
+"${generate_weekly_snippets_sh}" \
+  --author cgrindel \
+  --week_with_date "2022-01-05" \
+  --snippets_dir "${snippets_dir}"
+
+expected_snippets_file="${snippets_dir}/snippets_2022.md"
+[[ -e "${expected_snippets_file}" ]] || \
+  fail "Expected snippets file to be created. ${expected_snippets_file}"
+(cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-09" > /dev/null) || \
+  fail "Expected to find snippets in created snippet file. ${expected_snippets_file}"
+
+
+# MARK - Test Updating An Existing Snippet File
+
+"${generate_weekly_snippets_sh}" \
+  --author cgrindel \
+  --week_with_date "2022-01-12" \
+  --snippets_dir "${snippets_dir}"
+
+[[ -e "${expected_snippets_file}" ]] || \
+  fail "Expected snippets file to after update. ${expected_snippets_file}"
+(cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-16" > /dev/null) || \
+  fail "Expected to find new snippet in updated snippet file. ${expected_snippets_file}"
+(cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-09" > /dev/null) || \
+  fail "Expected to find old snippet in updated snippet file. ${expected_snippets_file}"

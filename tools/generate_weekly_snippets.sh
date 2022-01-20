@@ -71,6 +71,10 @@ while (("$#")); do
       author="${2}"
       shift 2
       ;;
+    "--snippets_dir")
+      snippets_dir="${2}"
+      shift 2
+      ;;
     *)
       args+=("${1}")
       shift 1
@@ -110,12 +114,46 @@ snippets="$(
 
 # Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
+snippet_heading="# Week Ending ${week_ending_date}"
 output="$(cat <<-EOF
-# Week Ending ${week_ending_date}
+${snippet_heading}
 
 ${snippets}
+
+---
+  
 EOF
 )"
+# NOTE: If the last line of the here doc above is empty, it will not print the blank line.
 
-# Output the markdown
-echo "${output}"
+# If a snippets directory was provided, then look for the snippet file and update it.
+if [[ -n "${snippets_dir:-}" ]]; then
+  # Determine the snippet path.
+  snippet_year="$( get_year_from_date "${week_ending_date}" )"
+  snippet_file_path="${snippets_dir}/snippets_${snippet_year}.md"
+  snippet_backup_path="${snippet_file_path}.bak"
+
+  # Create a temp file for the output
+  tmp_file="$( mktemp )"
+  cleanup() {
+    rm -f "${tmp_file}"
+  }
+  trap cleanup EXIT
+
+  #  Make sure that the snippet file exists
+  touch "${snippet_file_path}"
+
+  # Create a new snippet file 
+  echo "${output}" | cat - "${snippet_file_path}" > "${tmp_file}"
+
+  # Backup the curent file
+  rm -f "${snippet_backup_path}"
+  mv "${snippet_file_path}" "${snippet_backup_path}"
+
+  # Move new file
+  mv "${tmp_file}" "${snippet_file_path}"
+else
+  # Output the markdown to stdout
+  echo "${output}"
+fi
+
