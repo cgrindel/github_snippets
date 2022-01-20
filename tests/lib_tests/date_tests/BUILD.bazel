@@ -41,3 +41,13 @@ sh_test(
         "@cgrindel_bazel_starlib//shlib/lib:assertions",
     ],
 )
+
+sh_test(
+    name = "get_year_from_date_test",
+    srcs = ["get_year_from_date_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)

@@ -49,9 +49,19 @@ get_usage() {
 Generate your weekly snippets using GitHub activity.
 
 Usage:
-${utility} 
+${utility} [OPTIONS]
 
 Options:
+--week_with_date      Optional. Identify the week of snippets by the specified 
+                      date. It will determine the week that contains the date 
+                      and generate the snippets for that week.
+--author              Optional. The author whose PR activity should be queried.
+                      If not specified, the author is determined from the 
+                      github credentials (gh auth status).
+--snippets_dir        Optional. Specifies the directory that contains 
+                      snippets files (snippets_XXXX.md). If specified, the
+                      script will identify the target snippets file, generate 
+                      the snippets, and add them to front of the file.
 EOF
   )"
 }
@@ -71,6 +81,10 @@ while (("$#")); do
       author="${2}"
       shift 2
       ;;
+    "--snippets_dir")
+      snippets_dir="${2}"
+      shift 2
+      ;;
     *)
       args+=("${1}")
       shift 1
@@ -80,6 +94,7 @@ done
 
 
 # MARK - Retrieve the closed PRs for the past week.
+
 
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
@@ -110,12 +125,53 @@ snippets="$(
 
 # Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
+snippet_heading="# Week Ending ${week_ending_date}"
 output="$(cat <<-EOF
-# Week Ending ${week_ending_date}
+${snippet_heading}
 
 ${snippets}
+
+---
+  
 EOF
 )"
+# NOTE: If the last line of the here doc above is empty, it will not print the blank line.
 
-# Output the markdown
-echo "${output}"
+# If a snippets directory was provided, then look for the snippet file and update it.
+if [[ -n "${snippets_dir:-}" ]]; then
+  # Determine the snippet path.
+  snippet_year="$( get_year_from_date "${week_ending_date}" )"
+  snippet_file_path="${snippets_dir}/snippets_${snippet_year}.md"
+  snippet_backup_path="${snippet_file_path}.bak"
+
+  #  Make sure that the snippet file exists
+  touch "${snippet_file_path}"
+
+  # Check if the weekly snippet exists already. We escape the spaces in the path so that we can 
+  # copy and paste it.
+  grep "${snippet_heading}" "${snippet_file_path}" > /dev/null &&
+    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: \"${snippet_file_path// /\\ }\""
+
+  # Create a temp file for the output
+  tmp_file="$( mktemp )"
+  cleanup() {
+    rm -f "${tmp_file}"
+  }
+  trap cleanup EXIT
+
+  # Create a new snippet file 
+  echo "${output}" | cat - "${snippet_file_path}" > "${tmp_file}"
+
+  # Backup the curent file
+  rm -f "${snippet_backup_path}"
+  mv "${snippet_file_path}" "${snippet_backup_path}"
+
+  # Move new file
+  mv "${tmp_file}" "${snippet_file_path}"
+
+  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path// /\\ }\"."
+else
+  # Output the markdown to stdout
+  echo "${output}"
+fi
+
