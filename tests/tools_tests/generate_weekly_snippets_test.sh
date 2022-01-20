@@ -87,3 +87,18 @@ expected_snippets_file="${snippets_dir}/snippets_2022.md"
   fail "Expected to find new snippet in updated snippet file. ${expected_snippets_file}"
 (cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-09" > /dev/null) || \
   fail "Expected to find old snippet in updated snippet file. ${expected_snippets_file}"
+
+
+# MARK - Test Fail if Adding Snippets for Existing Week
+
+"${generate_weekly_snippets_sh}" \
+  --author cgrindel \
+  --week_with_date "2022-01-12" \
+  --snippets_dir "${snippets_dir}" || echo "Expected failure occurred."
+
+[[ -e "${expected_snippets_file}" ]] || \
+  fail "Expected snippets file to exist after failed update. ${expected_snippets_file}"
+(cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-16" > /dev/null) || \
+  fail "Expected to find second snippet after failed update. ${expected_snippets_file}"
+(cat "${expected_snippets_file}" | grep "# Week Ending 2022-01-09" > /dev/null) || \
+  fail "Expected to find first snippet after failed update. ${expected_snippets_file}"

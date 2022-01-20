@@ -144,15 +144,19 @@ if [[ -n "${snippets_dir:-}" ]]; then
   snippet_file_path="${snippets_dir}/snippets_${snippet_year}.md"
   snippet_backup_path="${snippet_file_path}.bak"
 
+  #  Make sure that the snippet file exists
+  touch "${snippet_file_path}"
+
+  # Check if the weekly snippet exists already
+  grep "${snippet_heading}" "${snippet_file_path}" > /dev/null &&
+    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: ${snippet_file_path}"
+
   # Create a temp file for the output
   tmp_file="$( mktemp )"
   cleanup() {
     rm -f "${tmp_file}"
   }
   trap cleanup EXIT
-
-  #  Make sure that the snippet file exists
-  touch "${snippet_file_path}"
 
   # Create a new snippet file 
   echo "${output}" | cat - "${snippet_file_path}" > "${tmp_file}"
@@ -163,6 +167,8 @@ if [[ -n "${snippets_dir:-}" ]]; then
 
   # Move new file
   mv "${tmp_file}" "${snippet_file_path}"
+
+  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path}\"."
 else
   # Output the markdown to stdout
   echo "${output}"
