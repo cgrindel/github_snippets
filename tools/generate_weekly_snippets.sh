@@ -150,7 +150,7 @@ if [[ -n "${snippets_dir:-}" ]]; then
   # Check if the weekly snippet exists already. We escape the spaces in the path so that we can 
   # copy and paste it.
   grep "${snippet_heading}" "${snippet_file_path}" > /dev/null &&
-    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: ${snippet_file_path// /\\ }"
+    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: \"${snippet_file_path// /\\ }\""
 
   # Create a temp file for the output
   tmp_file="$( mktemp )"
