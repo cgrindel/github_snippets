@@ -147,9 +147,10 @@ if [[ -n "${snippets_dir:-}" ]]; then
   #  Make sure that the snippet file exists
   touch "${snippet_file_path}"
 
-  # Check if the weekly snippet exists already
+  # Check if the weekly snippet exists already. We escape the spaces in the path so that we can 
+  # copy and paste it.
   grep "${snippet_heading}" "${snippet_file_path}" > /dev/null &&
-    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: ${snippet_file_path}"
+    fail "It appears the week's snippets are already in the file. heading: \"${snippet_heading}\", path: ${snippet_file_path// /\\ }"
 
   # Create a temp file for the output
   tmp_file="$( mktemp )"
@@ -168,7 +169,7 @@ if [[ -n "${snippets_dir:-}" ]]; then
   # Move new file
   mv "${tmp_file}" "${snippet_file_path}"
 
-  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path}\"."
+  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path// /\\ }\"."
 else
   # Output the markdown to stdout
   echo "${output}"
