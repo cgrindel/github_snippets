@@ -49,8 +49,7 @@ get_usage() {
 Generate your weekly snippets using GitHub activity.
 
 Usage:
-${utility} [--week_with_date <date>] [--author <author>] 
-           [--snippets_dir <directory>]
+${utility} [OPTIONS]
 
 Options:
 --week_with_date      Optional. Identify the week of snippets by the specified 
@@ -95,6 +94,7 @@ done
 
 
 # MARK - Retrieve the closed PRs for the past week.
+
 
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
