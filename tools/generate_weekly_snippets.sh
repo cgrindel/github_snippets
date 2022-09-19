@@ -95,6 +95,7 @@ done
 
 # MARK - Retrieve the closed PRs for the past week.
 
+jq_lib_dir="$(dirname "${github_jq}")"
 
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
@@ -114,14 +115,22 @@ closed_prs_result="$(
   search_prs "type:pr" "state:closed" "author:${author}" \
     "closed:${begin_date}..${end_date}"
 )"
-
-# Generate the markdown snippets
-jq_lib_dir="$(dirname "${github_jq}")"
-snippets="$(
+closed_prs_md="$(
   echo "${closed_prs_result}" | \
     jq -r -L "${jq_lib_dir}" \
-      'import "github" as github; github::pr_search_response_to_md '
+      'import "github" as github; github::closed_pr_search_response_to_md '
 )"
+
+reviewed_prs_result="$(
+  search_prs "type:pr" "-author:${author}" "reviewed-by:${author}" \
+    "updated:${begin_date}..${end_date}"
+)"
+reviewed_prs_md="$(
+  echo "${reviewed_prs_result}" | \
+    jq -r -L "${jq_lib_dir}" \
+      'import "github" as github; github::reviewed_pr_search_response_to_md '
+)"
+
 
 # Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
@@ -129,7 +138,9 @@ snippet_heading="# Week Ending ${week_ending_date}"
 output="$(cat <<-EOF
 ${snippet_heading}
 
-${snippets}
+${closed_prs_md}
+
+${reviewed_prs_md}
 
 ---
   
