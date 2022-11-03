@@ -48,36 +48,36 @@ null
 null
 
 
-# MARK - pr_to_md
+# MARK - closed_pr_to_md
 
 # Basic, no body
-import "github" as github; github::pr_to_md
+import "github" as github; github::closed_pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr"}
 "- [This is the title.](https://url_to_pr)"
 
 # Basic, with body
-import "github" as github; github::pr_to_md
+import "github" as github; github::closed_pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr","body":"- This is the body."}
 "- [This is the title.](https://url_to_pr)\n  - This is the body."
 
 # Body evaluates to empty string
-import "github" as github; github::pr_to_md
+import "github" as github; github::closed_pr_to_md
 {"title": "This is the title.","html_url":"https://url_to_pr","body":""}
 "- [This is the title.](https://url_to_pr)"
 
 
-# MARK - repo_prs_to_md
+# MARK - closed_repo_prs_to_md
 
 # Basic
-import "github" as github; github::repo_prs_to_md
+import "github" as github; github::closed_repo_prs_to_md
 [{"repository_url":"https://github.com/cgrindel/repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://github.com/cgrindel/repo_url","title": "Second PR","html_url":"https://second_pr_url"}]
 "## `cgrindel/repo_url`\n- [First PR](https://first_pr_url)\n- [Second PR](https://second_pr_url)"
 
 
-# MARK - pr_search_response_to_md
+# MARK - closed_pr_search_response_to_md
 
 # Basic
-import "github" as github; github::pr_search_response_to_md
+import "github" as github; github::closed_pr_search_response_to_md
 {"items":[{"repository_url":"https://github.com/cgrindel/first_repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://github.com/cgrindel/second_repo_url","title": "Second PR","html_url":"https://second_pr_url"}]}
 "## `cgrindel/first_repo_url`\n- [First PR](https://first_pr_url)\n\n## `cgrindel/second_repo_url`\n- [Second PR](https://second_pr_url)"
 
