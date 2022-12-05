@@ -180,7 +180,8 @@ if [[ -n "${snippets_dir:-}" ]]; then
   # Move new file
   mv "${tmp_file}" "${snippet_file_path}"
 
-  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path// /\\ }\"."
+  echo "Added snippets for the week ending ${week_ending_date} to ${snippet_file_path// /\\ }."
+  vim "${snippet_file_path}"
 else
   # Output the markdown to stdout
   echo "${output}"
