@@ -62,9 +62,13 @@ Options:
                       snippets files (snippets_XXXX.md). If specified, the
                       script will identify the target snippets file, generate 
                       the snippets, and add them to front of the file.
+--no_launch_vim       Optional. Prevents vim from being launched with the 
+                      snippets file open.
 EOF
   )"
 }
+
+launch_vim="true"
 
 args=()
 while (("$#")); do
@@ -84,6 +88,10 @@ while (("$#")); do
     "--snippets_dir")
       snippets_dir="${2}"
       shift 2
+      ;;
+    "--no_launch_vim")
+      launch_vim="false"
+      shift 1
       ;;
     *)
       args+=("${1}")
@@ -180,7 +188,10 @@ if [[ -n "${snippets_dir:-}" ]]; then
   # Move new file
   mv "${tmp_file}" "${snippet_file_path}"
 
-  echo "Added snippets for the week ending ${week_ending_date} to \"${snippet_file_path// /\\ }\"."
+  echo "Added snippets for the week ending ${week_ending_date} to ${snippet_file_path// /\\ }."
+  if [[ "${launch_vim}" == "true" ]]; then
+    vim "${snippet_file_path}"
+  fi
 else
   # Output the markdown to stdout
   echo "${output}"
