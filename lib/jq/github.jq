@@ -9,6 +9,7 @@ def repo_title:
     "aspect-build/aspect-cli": "Aspect CLI",
     "aspect-build/bazel-lib": "Aspect Bazel Lib",
     "bazel-contrib/rules_bazel_integration_test": "Bazel Integration Test Rules",
+    "bazelbuild/bazel-gazelle": "Bazel Gazelle",
     "bazelbuild/rules_pkg": "Bazel Packaging Rules",
     "buildbuddy-io/rules_xcodeproj": "Xcode Project Generator",
     "cgrindel/bazel-starlib": "Bazel Starlib",
@@ -18,6 +19,7 @@ def repo_title:
     "cgrindel/rules_spm": "Swift Package Manager Rules for Bazel",
     "cgrindel/rules_swiftformat": "SwiftFormat Rules for Bazel",
     "cgrindel/spm_bazel": "SPM Bazel",
+    "cgrindel/swift_bazel": "Swift Bazel",
     "cgrindel/swift_toolbox": "Swift Toolbox"
   } as $repo_titles |
   [ ($repo_titles | getpath([$suffix])), "`\($suffix)`" ] |

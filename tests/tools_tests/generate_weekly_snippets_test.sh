@@ -63,6 +63,7 @@ rm -rf "${snippets_dir}"
 mkdir -p "${snippets_dir}"
 
 "${generate_weekly_snippets_sh}" \
+  --no_launch_vim \
   --author cgrindel \
   --week_with_date "2022-01-05" \
   --snippets_dir "${snippets_dir}"
@@ -77,6 +78,7 @@ expected_snippets_file="${snippets_dir}/snippets_2022.md"
 # MARK - Test Updating An Existing Snippet File
 
 "${generate_weekly_snippets_sh}" \
+  --no_launch_vim \
   --author cgrindel \
   --week_with_date "2022-01-12" \
   --snippets_dir "${snippets_dir}"
@@ -92,6 +94,7 @@ expected_snippets_file="${snippets_dir}/snippets_2022.md"
 # MARK - Test Fail if Adding Snippets for Existing Week
 
 "${generate_weekly_snippets_sh}" \
+  --no_launch_vim \
   --author cgrindel \
   --week_with_date "2022-01-12" \
   --snippets_dir "${snippets_dir}" || echo "Expected failure occurred."
