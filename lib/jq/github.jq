@@ -19,7 +19,7 @@ def repo_title:
     "cgrindel/rules_spm": "Swift Package Manager Rules for Bazel",
     "cgrindel/rules_swiftformat": "SwiftFormat Rules for Bazel",
     "cgrindel/spm_bazel": "SPM Bazel",
-    "cgrindel/swift_bazel": "Swift Bazel",
+    "cgrindel/rules_swift_package_manager": "Swift Package Manager Rules for Bazel",
     "cgrindel/swift_toolbox": "Swift Toolbox"
   } as $repo_titles |
   [ ($repo_titles | getpath([$suffix])), "`\($suffix)`" ] |
