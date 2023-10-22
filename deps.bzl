@@ -7,9 +7,9 @@ def github_snippets_dependencies():
     maybe(
         http_archive,
         name = "cgrindel_bazel_starlib",
-        sha256 = "ad9ff755a96f8f88de099a2bf673e6fb84077adbad243e286c4ae9549e760ebf",
-        strip_prefix = "bazel-starlib-0.18.0",
+        sha256 = "aeaaad85abce703bf1ab85af49312132cd31c22b1d3a7f86799a0f42021dfb29",
+        strip_prefix = "bazel-starlib-0.18.1",
         urls = [
-            "http://github.com/cgrindel/bazel-starlib/archive/v0.18.0.tar.gz",
+            "http://github.com/cgrindel/bazel-starlib/archive/v0.18.1.tar.gz",
         ],
     )
