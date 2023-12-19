@@ -1,7 +1,8 @@
 # Verbose Failures
 build --verbose_failures
 
+# NOTE: We need to find the jq and gh utilities from the PATH.
 # Strict PATH. Helps prevent build cache invalidation due to PATH differences.
-build --incompatible_strict_action_env=true
+# build --incompatible_strict_action_env=true
 
 
