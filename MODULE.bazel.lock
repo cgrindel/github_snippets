@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "9581e041fa3389b85a2168fccfa919c21261418e4f2f0bb309c91082affff7a8",
+  "moduleFileHash": "e71821af00b0f4889c6ad7bc3482fecfec5694b5bf3301fdf03dd063112e694d",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -26,7 +26,7 @@
       "extensionUsages": [],
       "deps": {
         "bazel_skylib": "bazel_skylib@1.5.0",
-        "cgrindel_bazel_starlib": "cgrindel_bazel_starlib@0.18.1",
+        "cgrindel_bazel_starlib": "cgrindel_bazel_starlib@0.19.0",
         "bazel_tools": "bazel_tools@_",
         "local_config_platform": "local_config_platform@_"
       }
@@ -62,10 +62,10 @@
         }
       }
     },
-    "cgrindel_bazel_starlib@0.18.1": {
+    "cgrindel_bazel_starlib@0.19.0": {
       "name": "cgrindel_bazel_starlib",
-      "version": "0.18.1",
-      "key": "cgrindel_bazel_starlib@0.18.1",
+      "version": "0.19.0",
+      "key": "cgrindel_bazel_starlib@0.19.0",
       "repoName": "cgrindel_bazel_starlib",
       "executionPlatformsToRegister": [],
       "toolchainsToRegister": [],
@@ -73,9 +73,9 @@
         {
           "extensionBzlFile": "@bazel_gazelle//:extensions.bzl",
           "extensionName": "go_deps",
-          "usingModule": "cgrindel_bazel_starlib@0.18.1",
+          "usingModule": "cgrindel_bazel_starlib@0.19.0",
           "location": {
-            "file": "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.18.1/MODULE.bazel",
+            "file": "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.19.0/MODULE.bazel",
             "line": 31,
             "column": 24
           },
@@ -94,7 +94,7 @@
               },
               "devDependency": false,
               "location": {
-                "file": "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.18.1/MODULE.bazel",
+                "file": "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.19.0/MODULE.bazel",
                 "line": 32,
                 "column": 18
               }
@@ -118,14 +118,14 @@
         "bzlFile": "@bazel_tools//tools/build_defs/repo:http.bzl",
         "ruleClassName": "http_archive",
         "attributes": {
-          "name": "cgrindel_bazel_starlib~0.18.1",
+          "name": "cgrindel_bazel_starlib~0.19.0",
           "urls": [
-            "https://github.com/cgrindel/bazel-starlib/releases/download/v0.18.1/bazel-starlib.v0.18.1.tar.gz"
+            "https://github.com/cgrindel/bazel-starlib/releases/download/v0.19.0/bazel-starlib.v0.19.0.tar.gz"
           ],
-          "integrity": "sha256-kJAoCpz/cyLnwiBiUGsyc6LogMpGTlILXHf9++1OiAU=",
+          "integrity": "sha256-uciKxRzKoGNWIRETCLhf27JgatuGRZb5hCql90gM/jo=",
           "strip_prefix": "",
           "remote_patches": {
-            "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.18.1/patches/module_dot_bazel_version.patch": "sha256-WtSjgE6E5kutwVATDsDKpxMYRwO2KUSA8sIQ2mQ5IJQ="
+            "https://bcr.bazel.build/modules/cgrindel_bazel_starlib/0.19.0/patches/module_dot_bazel_version.patch": "sha256-pb5tO/2x/wK3GXprOpkpTyglh7RmVOIbXJl1F0TVFrQ="
           },
           "remote_patch_strip": 1
         }
