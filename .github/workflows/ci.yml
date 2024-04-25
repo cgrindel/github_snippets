@@ -8,7 +8,7 @@ jobs:
   macos_build:
     runs-on: macos-11.0
     steps:
-    - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4
+    - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
     - uses: cgrindel/gha_set_up_bazel@v1
       with:
         repo_name: github_snippets
