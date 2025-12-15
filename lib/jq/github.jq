@@ -50,9 +50,7 @@ def format_pr_body:
 
 
 def closed_pr_to_md:
-  ["- [\(.title)](\(.html_url))", (.body | format_pr_body) ] | 
-  map(select(.)) |
-  join("\n") 
+  "- [\(.title)](\(.html_url))"
   ;
 
 # Expects an array of PRs that are already grouped by repository_url
