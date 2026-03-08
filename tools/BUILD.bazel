@@ -8,7 +8,11 @@ sh_binary(
     srcs = ["generate_weekly_snippets.sh"],
     data = [
         "//lib/jq:modules",
+        "@jq_toolchains//:resolved_toolchain",
+        "@multitool//tools/gh",
     ],
+    env = {"JQ_BIN": "$(JQ_BIN)"},
+    toolchains = ["@jq_toolchains//:resolved_toolchain"],
     visibility = ["//visibility:public"],
     deps = [
         "//lib:date",

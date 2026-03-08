@@ -10,9 +10,6 @@ common:ci --color=no
 # https://docs.github.com/en/free-pro-team@latest/actions/reference/specifications-for-github-hosted-runners#supported-runners-and-hardware-resources
 build:ci --jobs=2
 
-# Pass through PATH so that tests can find host tools (e.g. gh, jq)
-build:ci --action_env=PATH
-
 # Test output information
 test:ci --test_output=errors --test_summary=detailed
 
