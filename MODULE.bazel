@@ -19,5 +19,5 @@ multitool = use_extension(
     "@rules_multitool//multitool:extension.bzl",
     "multitool",
 )
-multitool.hub(lockfile = "//tools/gh:multitool.lock.json")
+multitool.hub(lockfile = "//:multitool.lock.json")
 use_repo(multitool, "multitool")
