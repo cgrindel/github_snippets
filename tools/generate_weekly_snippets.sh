@@ -42,11 +42,20 @@ github_jq_location=cgrindel_github_snippets/lib/jq/github.jq
 github_jq="$(rlocation "${github_jq_location}")" \
   || (echo >&2 "Failed to locate ${github_jq_location}" && exit 1)
 
+# shellcheck disable=SC2153
+jq_location="${JQ_BIN#external/}"
+jq_bin="$(rlocation "${jq_location}")" \
+  || (echo >&2 "Failed to locate ${jq_location}" && exit 1)
+
+gh_location=multitool/tools/gh/gh
+gh="$(rlocation "${gh_location}")" \
+  || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
+
 # MARK - Functions
 
 search_prs() {
   query_args_str="${*}"
-  gh api -X GET search/issues -f q="${query_args_str}"
+  "${gh}" api -X GET search/issues -f q="${query_args_str}"
 }
 
 # MARK - Process Args
@@ -115,10 +124,10 @@ jq_lib_dir="$(dirname "${github_jq}")"
 cd "${BUILD_WORKSPACE_DIRECTORY}"
 
 # Figure out the author
-[[ -z "${author:-}" ]] && author="$(get_gh_username)"
+[[ -z ${author:-} ]] && author="$(get_gh_username)"
 
 # Determine the date range
-if [[ -n "${week_with_date:-}" ]]; then
+if [[ -n ${week_with_date:-} ]]; then
   begin_date="$(find_beginning_of_week "${week_with_date}")"
 else
   begin_date="$(find_beginning_of_previous_week)"
@@ -132,7 +141,7 @@ closed_prs_result="$(
 )"
 closed_prs_md="$(
   echo "${closed_prs_result}" \
-    | jq -r -L "${jq_lib_dir}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
       'import "github" as github; github::closed_pr_search_response_to_md '
 )"
 
@@ -142,7 +151,7 @@ reviewed_prs_result="$(
 )"
 reviewed_prs_md="$(
   echo "${reviewed_prs_result}" \
-    | jq -r -L "${jq_lib_dir}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
       'import "github" as github; github::reviewed_pr_search_response_to_md '
 )"
 
@@ -166,7 +175,7 @@ EOF
 
 # If a snippets directory was provided, then look for the snippet file and
 # update it.
-if [[ -n "${snippets_dir:-}" ]]; then
+if [[ -n ${snippets_dir:-} ]]; then
   # Determine the snippet path.
   snippet_year="$(get_year_from_date "${week_ending_date}")"
   snippet_file_path="${snippets_dir}/snippets_${snippet_year}.md"
@@ -200,7 +209,7 @@ if [[ -n "${snippets_dir:-}" ]]; then
 
   echo "Added snippets for the week ending ${week_ending_date} to" \
     "${snippet_file_path// /\\ }."
-  if [[ "${launch_vim}" == "true" ]]; then
+  if [[ ${launch_vim} == "true" ]]; then
     vim "${snippet_file_path}"
   fi
 else

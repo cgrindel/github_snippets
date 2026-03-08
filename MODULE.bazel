@@ -4,4 +4,20 @@ module(
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
-bazel_dep(name = "cgrindel_bazel_starlib", version = "0.27.0")
+bazel_dep(name = "cgrindel_bazel_starlib", version = "0.30.0")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "jq.bzl", version = "0.6.1")
+bazel_dep(name = "rules_multitool", version = "1.0.0")
+
+jq_toolchains = use_extension(
+    "@jq.bzl//jq:extensions.bzl",
+    "toolchains",
+)
+use_repo(jq_toolchains, "jq", "jq_toolchains")
+
+multitool = use_extension(
+    "@rules_multitool//multitool:extension.bzl",
+    "multitool",
+)
+multitool.hub(lockfile = "//:multitool.lock.json")
+use_repo(multitool, "multitool")
