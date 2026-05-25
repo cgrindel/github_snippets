@@ -56,6 +56,10 @@ summary_prompt_location=cgrindel_github_snippets/lib/claude/summary_prompt.md
 summary_prompt_path="$(rlocation "${summary_prompt_location}")" \
   || (echo >&2 "Failed to locate ${summary_prompt_location}" && exit 1)
 
+# shellcheck disable=SC2153
+prettier_bin="$(rlocation "${PRETTIER_BIN_RUNFILE}")" \
+  || (echo >&2 "Failed to locate ${PRETTIER_BIN_RUNFILE}" && exit 1)
+
 gh_location=multitool/tools/gh/gh
 gh="$(rlocation "${gh_location}")" \
   || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
@@ -95,11 +99,14 @@ Options:
                       Produces an activity-only entry like the old behavior.
 --claude_model        Optional. Model id to pass to claude via --model.
                       Defaults to claude-opus-4-7.
+--no_format           Optional. Skip the prettier pass that normalizes the
+                      year file after prepending the new entry.
 EOF
 }
 
 launch_vim="true"
 generate_summary="true"
+run_prettier="true"
 claude_model="claude-opus-4-7"
 
 args=()
@@ -127,6 +134,10 @@ while (("$#")); do
       ;;
     "--no_summary")
       generate_summary="false"
+      shift 1
+      ;;
+    "--no_format")
+      run_prettier="false"
       shift 1
       ;;
     "--claude_model")
@@ -268,6 +279,14 @@ if [[ -n ${snippets_dir:-} ]]; then
 
   # Move new file
   mv "${tmp_file}" "${snippet_file_path}"
+
+  # Normalize formatting (line wrap, blank lines, etc.) via prettier. The
+  # js_binary launcher requires BAZEL_BINDIR; since we are not running as
+  # part of a Bazel action, "." is the documented escape hatch.
+  if [[ ${run_prettier} == "true" ]]; then
+    BAZEL_BINDIR=. "${prettier_bin}" --print-width 100 --prose-wrap always \
+      --write "${snippet_file_path}" >/dev/null
+  fi
 
   echo "Added snippets for the week ending ${week_ending_date} to" \
     "${snippet_file_path// /\\ }."

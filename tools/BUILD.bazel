@@ -4,13 +4,17 @@ load(":claude.bzl", "claude_runfile")
 
 bzlformat_pkg(name = "bzlformat")
 
-claude_runfile(name = "claude_runfile")
+claude_runfile(
+    name = "claude_runfile",
+    visibility = ["//visibility:public"],
+)
 
 sh_binary(
     name = "generate_weekly_snippets",
     srcs = ["generate_weekly_snippets.sh"],
     data = [
         ":claude_runfile",
+        "//:prettier",
         "//lib/claude:summary_prompt",
         "//lib/jq:modules",
         "@jq_toolchains//:resolved_toolchain",
@@ -19,6 +23,7 @@ sh_binary(
     env = {
         "CLAUDE_BIN": "$(CLAUDE_BIN)",
         "JQ_BIN": "$(JQ_BIN)",
+        "PRETTIER_BIN_RUNFILE": "cgrindel_github_snippets/prettier_/prettier",
     },
     toolchains = [
         ":claude_runfile",
