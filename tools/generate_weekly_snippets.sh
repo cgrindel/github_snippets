@@ -162,6 +162,8 @@ output="$(
   cat <<-EOF
 ${snippet_heading}
 
+## Activity
+
 ${closed_prs_md}
 
 ${reviewed_prs_md}
@@ -197,8 +199,9 @@ if [[ -n ${snippets_dir:-} ]]; then
   }
   trap cleanup EXIT
 
-  # Create a new snippet file
-  echo "${output}" | cat - "${snippet_file_path}" >"${tmp_file}"
+  # Create a new snippet file. Use printf to guarantee a trailing blank
+  # line between this entry's `---` separator and the next heading.
+  printf '%s\n\n' "${output}" | cat - "${snippet_file_path}" >"${tmp_file}"
 
   # Backup the curent file
   rm -f "${snippet_backup_path}"

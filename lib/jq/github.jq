@@ -50,12 +50,12 @@ def format_pr_body:
 
 
 def closed_pr_to_md:
-  "- [\(.title)](\(.html_url))"
+  "  - [\(.title)](\(.html_url))"
   ;
 
 # Expects an array of PRs that are already grouped by repository_url
 def closed_repo_prs_to_md:
-  "## \(.[0].repository_url | repo_title)" as $repo_url |
+  "- **\(.[0].repository_url | repo_title)**" as $repo_url |
   map(. | closed_pr_to_md) as $pr_mds |
   [ $repo_url ] + $pr_mds |
   join("\n")
@@ -64,19 +64,20 @@ def closed_repo_prs_to_md:
 
 def closed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | closed_repo_prs_to_md ] |
-  join("\n\n")
+  [ "### Authored" ] + . |
+  join("\n")
   ;
 
 # Reviewed PRs
 
 def reviewed_pr_to_md:
-  ["  - [\(.title)](\(.html_url))"] | 
+  ["  - [\(.title)](\(.html_url))"] |
   map(select(.)) |
-  join("\n") 
+  join("\n")
   ;
 
 def reviewed_repo_prs_to_md:
-  "- \(.[0].repository_url | repo_title)" as $repo_url |
+  "- **\(.[0].repository_url | repo_title)**" as $repo_url |
   map(. | reviewed_pr_to_md) as $pr_mds |
   [ $repo_url ] + $pr_mds |
   join("\n")
@@ -84,6 +85,6 @@ def reviewed_repo_prs_to_md:
 
 def reviewed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | reviewed_repo_prs_to_md ] |
-  [ "## Reviewed PRs" ] + . |
+  [ "### Reviewed" ] + . |
   join("\n")
   ;
