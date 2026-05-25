@@ -1,18 +1,29 @@
 load("@cgrindel_bazel_starlib//bzlformat:defs.bzl", "bzlformat_pkg")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load(":claude.bzl", "claude_runfile")
 
 bzlformat_pkg(name = "bzlformat")
+
+claude_runfile(name = "claude_runfile")
 
 sh_binary(
     name = "generate_weekly_snippets",
     srcs = ["generate_weekly_snippets.sh"],
     data = [
+        ":claude_runfile",
+        "//lib/claude:summary_prompt",
         "//lib/jq:modules",
         "@jq_toolchains//:resolved_toolchain",
         "@multitool//tools/gh",
     ],
-    env = {"JQ_BIN": "$(JQ_BIN)"},
-    toolchains = ["@jq_toolchains//:resolved_toolchain"],
+    env = {
+        "CLAUDE_BIN": "$(CLAUDE_BIN)",
+        "JQ_BIN": "$(JQ_BIN)",
+    },
+    toolchains = [
+        ":claude_runfile",
+        "@jq_toolchains//:resolved_toolchain",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//lib:date",

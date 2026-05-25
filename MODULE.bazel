@@ -8,6 +8,17 @@ bazel_dep(name = "cgrindel_bazel_starlib", version = "0.30.0")
 bazel_dep(name = "rules_shell", version = "0.8.0")
 bazel_dep(name = "jq.bzl", version = "0.6.1")
 bazel_dep(name = "rules_multitool", version = "1.11.1")
+bazel_dep(name = "rules_claude", version = "0.1.0")
+
+# rules_claude isn't published to the Bazel Central Registry, so the
+# bazel_dep version above never resolves on its own. git_override pulls
+# the module straight from the repo at a pinned commit, which is the
+# installation pattern the rules_claude README recommends.
+git_override(
+    module_name = "rules_claude",
+    commit = "1a978976e61cc1bb38a69fccc1158e0b44246bd0",
+    remote = "https://github.com/buildbuddy-io/rules_claude.git",
+)
 
 jq_toolchains = use_extension(
     "@jq.bzl//jq:extensions.bzl",
@@ -21,3 +32,6 @@ multitool = use_extension(
 )
 multitool.hub(lockfile = "//:multitool.lock.json")
 use_repo(multitool, "multitool")
+
+claude = use_extension("@rules_claude//claude:extensions.bzl", "claude")
+claude.download(use_latest = True)

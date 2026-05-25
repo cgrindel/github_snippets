@@ -47,6 +47,15 @@ jq_location="${JQ_BIN#external/}"
 jq_bin="$(rlocation "${jq_location}")" \
   || (echo >&2 "Failed to locate ${jq_location}" && exit 1)
 
+# shellcheck disable=SC2153
+claude_location="${CLAUDE_BIN#external/}"
+claude_bin="$(rlocation "${claude_location}")" \
+  || (echo >&2 "Failed to locate ${claude_location}" && exit 1)
+
+summary_prompt_location=cgrindel_github_snippets/lib/claude/summary_prompt.md
+summary_prompt_path="$(rlocation "${summary_prompt_location}")" \
+  || (echo >&2 "Failed to locate ${summary_prompt_location}" && exit 1)
+
 gh_location=multitool/tools/gh/gh
 gh="$(rlocation "${gh_location}")" \
   || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
@@ -82,10 +91,16 @@ Options:
                       the snippets, and add them to front of the file.
 --no_launch_vim       Optional. Prevents vim from being launched with the
                       snippets file open.
+--no_summary          Optional. Skip the Claude-generated summary pass.
+                      Produces an activity-only entry like the old behavior.
+--claude_model        Optional. Model id to pass to claude via --model.
+                      Defaults to claude-opus-4-7.
 EOF
 }
 
 launch_vim="true"
+generate_summary="true"
+claude_model="claude-opus-4-7"
 
 args=()
 while (("$#")); do
@@ -109,6 +124,14 @@ while (("$#")); do
     "--no_launch_vim")
       launch_vim="false"
       shift 1
+      ;;
+    "--no_summary")
+      generate_summary="false"
+      shift 1
+      ;;
+    "--claude_model")
+      claude_model="${2}"
+      shift 2
       ;;
     *)
       args+=("${1}")
@@ -155,6 +178,46 @@ reviewed_prs_md="$(
       'import "github" as github; github::reviewed_pr_search_response_to_md '
 )"
 
+# Assemble the activity Markdown that Claude will summarize (and that we'll
+# emit verbatim in the output below).
+activity_md="$(
+  cat <<-EOF
+## Activity
+
+${closed_prs_md}
+
+${reviewed_prs_md}
+EOF
+)"
+
+# Generate the human-readable summary sections via Claude. Fall back to an
+# activity-only entry if Claude errors or is disabled.
+summary_md=""
+if [[ ${generate_summary} == "true" ]]; then
+  prompt="$(cat "${summary_prompt_path}")"
+  prompt="${prompt}
+
+${activity_md}
+"
+  if claude_out="$("${claude_bin}" -p "${prompt}" --model "${claude_model}" 2>&1)"; then
+    summary_md="$(printf '%s' "${claude_out}" | sed -e 's/[[:space:]]*$//')"
+  else
+    echo >&2 "Warning: Claude summary generation failed (exit $?);" \
+      "emitting activity-only entry."
+    echo >&2 "${claude_out}"
+  fi
+fi
+
+# Build the entry. When the summary is present, slot it above the activity
+# heading; when absent, the activity sits directly under the week heading.
+if [[ -n ${summary_md} ]]; then
+  summary_block="${summary_md}
+
+"
+else
+  summary_block=""
+fi
+
 # Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
 snippet_heading="# Week Ending ${week_ending_date}"
@@ -162,11 +225,7 @@ output="$(
   cat <<-EOF
 ${snippet_heading}
 
-## Activity
-
-${closed_prs_md}
-
-${reviewed_prs_md}
+${summary_block}${activity_md}
 
 ---
 

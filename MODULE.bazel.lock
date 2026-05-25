@@ -289,6 +289,55 @@
         }
       }
     },
+    "@@rules_claude+//claude:extensions.bzl%claude": {
+      "general": {
+        "bzlTransitiveDigest": "Ql7lEKgt3d2L23xvSs9ASOxFYJJmtNMesaxsUbU5muo=",
+        "usagesDigest": "UOxuyFcGCuSl7uBUg7Rupx2oJmpst0eVDeGhW3aCv1s=",
+        "recordedInputs": [],
+        "generatedRepoSpecs": {
+          "claude_darwin_arm64": {
+            "repoRuleId": "@@rules_claude+//claude/private:repo.bzl%claude_toolchains",
+            "attributes": {
+              "version": "",
+              "platform": "darwin_arm64",
+              "sha256": "",
+              "use_latest": true
+            }
+          },
+          "claude_darwin_amd64": {
+            "repoRuleId": "@@rules_claude+//claude/private:repo.bzl%claude_toolchains",
+            "attributes": {
+              "version": "",
+              "platform": "darwin_amd64",
+              "sha256": "",
+              "use_latest": true
+            }
+          },
+          "claude_linux_arm64": {
+            "repoRuleId": "@@rules_claude+//claude/private:repo.bzl%claude_toolchains",
+            "attributes": {
+              "version": "",
+              "platform": "linux_arm64",
+              "sha256": "",
+              "use_latest": true
+            }
+          },
+          "claude_linux_amd64": {
+            "repoRuleId": "@@rules_claude+//claude/private:repo.bzl%claude_toolchains",
+            "attributes": {
+              "version": "",
+              "platform": "linux_amd64",
+              "sha256": "",
+              "use_latest": true
+            }
+          },
+          "claude_toolchains": {
+            "repoRuleId": "@@rules_claude+//claude/private:extensions.bzl%_claude_toolchains_repo",
+            "attributes": {}
+          }
+        }
+      }
+    },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
       "general": {
         "bzlTransitiveDigest": "Ga4z8lQy1YQ5rAMy+dOl0dqcCEBnYNCXku8x3YQmDZI=",
