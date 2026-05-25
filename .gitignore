@@ -1,3 +1,6 @@
 # Ignore Bazel symlinks
 bazel-*
 
+# Local pnpm install output — Bazel builds against the lockfile directly.
+node_modules/
+

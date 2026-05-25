@@ -10,7 +10,15 @@ sh_test(
         "//tools:generate_weekly_snippets",
         "@jq_toolchains//:resolved_toolchain",
     ],
-    env = {"JQ_BIN": "$(JQ_BIN)"},
+    # The script invokes the source .sh directly via rlocation, so it does
+    # not inherit env vars from the sh_binary target. We replay the same
+    # env wiring here so the script's CLAUDE_BIN / PRETTIER_BIN_RUNFILE
+    # references resolve under `set -u`.
+    env = {
+        "CLAUDE_BIN": "$(CLAUDE_BIN)",
+        "JQ_BIN": "$(JQ_BIN)",
+        "PRETTIER_BIN_RUNFILE": "cgrindel_github_snippets/prettier_/prettier",
+    },
     env_inherit = [
         # The HOME, GH_TOKEN, and GITHUB_TOKEN environment variables help the gh utility find
         # its auth info.
@@ -18,7 +26,10 @@ sh_test(
         "GH_TOKEN",
         "HOME",
     ],
-    toolchains = ["@jq_toolchains//:resolved_toolchain"],
+    toolchains = [
+        "//tools:claude_runfile",
+        "@jq_toolchains//:resolved_toolchain",
+    ],
     deps = [
         "@bazel_tools//tools/bash/runfiles",
         "@cgrindel_bazel_starlib//shlib/lib:assertions",

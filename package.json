@@ -1,0 +1,11 @@
+{
+  "name": "cgrindel_github_snippets",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "prettier": "3.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  }
+}

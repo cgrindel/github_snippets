@@ -7,8 +7,19 @@ load(
     "@cgrindel_bazel_starlib//updatesrc:defs.bzl",
     "updatesrc_update_all",
 )
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 
 bzlformat_pkg(name = "bzlformat")
+
+npm_link_all_packages(name = "node_modules")
+
+# Expose the prettier CLI as a runnable Bazel target so that other sh_binary
+# rules can pick it up as a runfile.
+prettier_bin.prettier_binary(
+    name = "prettier",
+    visibility = ["//visibility:public"],
+)
 
 bzlformat_missing_pkgs(
     name = "bzlformat_missing_pkgs",
