@@ -79,7 +79,39 @@ import "github" as github; github::closed_repo_prs_to_md
 # Basic
 import "github" as github; github::closed_pr_search_response_to_md
 {"items":[{"repository_url":"https://github.com/cgrindel/first_repo_url","title": "First PR","html_url":"https://first_pr_url"},{"repository_url":"https://github.com/cgrindel/second_repo_url","title": "Second PR","html_url":"https://second_pr_url"}]}
-"### Authored\n- **`cgrindel/first_repo_url`**\n  - [First PR](https://first_pr_url)\n- **`cgrindel/second_repo_url`**\n  - [Second PR](https://second_pr_url)"
+"### PRs Authored\n- **`cgrindel/first_repo_url`**\n  - [First PR](https://first_pr_url)\n- **`cgrindel/second_repo_url`**\n  - [Second PR](https://second_pr_url)"
+
+
+# MARK - reviewed_pr_search_response_to_md
+
+# Basic
+import "github" as github; github::reviewed_pr_search_response_to_md
+{"items":[{"repository_url":"https://github.com/cgrindel/repo_url","title": "A PR","html_url":"https://a_pr_url"}]}
+"### PRs Reviewed\n- **`cgrindel/repo_url`**\n  - [A PR](https://a_pr_url)"
+
+
+# MARK - opened_issue_search_response_to_md
+
+# Basic
+import "github" as github; github::opened_issue_search_response_to_md
+{"items":[{"repository_url":"https://github.com/cgrindel/repo_url","title": "An issue","html_url":"https://an_issue_url"}]}
+"### Issues Opened\n- **`cgrindel/repo_url`**\n  - [An issue](https://an_issue_url)"
+
+
+# MARK - closed_issue_search_response_to_md
+
+# Basic
+import "github" as github; github::closed_issue_search_response_to_md
+{"items":[{"repository_url":"https://github.com/cgrindel/repo_url","title": "An issue","html_url":"https://an_issue_url"}]}
+"### Issues Closed\n- **`cgrindel/repo_url`**\n  - [An issue](https://an_issue_url)"
+
+
+# MARK - commented_issue_search_response_to_md
+
+# Basic
+import "github" as github; github::commented_issue_search_response_to_md
+{"items":[{"repository_url":"https://github.com/cgrindel/repo_url","title": "An issue","html_url":"https://an_issue_url"}]}
+"### Issues Commented\n- **`cgrindel/repo_url`**\n  - [An issue](https://an_issue_url)"
 
 
 # MARK - repo_title

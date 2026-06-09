@@ -64,7 +64,7 @@ def closed_repo_prs_to_md:
 
 def closed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | closed_repo_prs_to_md ] |
-  [ "### Authored" ] + . |
+  [ "### PRs Authored" ] + . |
   join("\n")
   ;
 
@@ -85,7 +85,7 @@ def reviewed_repo_prs_to_md:
 
 def reviewed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | reviewed_repo_prs_to_md ] |
-  [ "### Reviewed" ] + . |
+  [ "### PRs Reviewed" ] + . |
   join("\n")
   ;
 

@@ -72,9 +72,9 @@ output="$(
 assert_match "# Week Ending 2022-01-09" "${output}"
 
 # Every activity section is rendered, with the content from its fixture.
-assert_match "### Authored" "${output}"
+assert_match "### PRs Authored" "${output}"
 assert_match "https://github.com/cgrindel/example/pull/101" "${output}"
-assert_match "### Reviewed" "${output}"
+assert_match "### PRs Reviewed" "${output}"
 assert_match "https://github.com/cgrindel/example/pull/102" "${output}"
 assert_match "### Issues Opened" "${output}"
 assert_match "https://github.com/cgrindel/example/issues/201" "${output}"
@@ -103,18 +103,18 @@ expected_snippets_file="${snippets_dir}/snippets_2022.md"
   || fail "Expected to find snippets in created snippet file. ${expected_snippets_file}"
 
 # Sanity-check that prettier ran: it normalizes by inserting a blank line
-# between '### Authored' and the first repo bullet (the generator emits
+# between '### PRs Authored' and the first repo bullet (the generator emits
 # them with no blank line). This catches breakage in the prettier
 # toolchain wiring (e.g. after a Renovate bump of rules_js / rules_lint /
 # prettier itself) that would otherwise pass the other assertions.
 awk '
-  /^### Authored$/ {
+  /^### PRs Authored$/ {
     getline next_line
     if (next_line == "") { found = 1 }
   }
   END { exit !found }
 ' "${expected_snippets_file}" \
-  || fail "Expected prettier to insert a blank line after '### Authored' in ${expected_snippets_file}"
+  || fail "Expected prettier to insert a blank line after '### PRs Authored' in ${expected_snippets_file}"
 
 # MARK - Test Updating An Existing Snippet File
 
@@ -167,13 +167,13 @@ raw_snippets_file="${raw_snippets_dir}/snippets_2022.md"
   || fail "Expected raw snippets file to be created. ${raw_snippets_file}"
 
 # Inverse of the assertion above: with --no_format, prettier is skipped,
-# so the line right after '### Authored' should be the first repo bullet
+# so the line right after '### PRs Authored' should be the first repo bullet
 # (no blank line in between).
 awk '
-  /^### Authored$/ {
+  /^### PRs Authored$/ {
     getline next_line
     if (next_line == "") { found_blank = 1 }
   }
   END { exit found_blank }
 ' "${raw_snippets_file}" \
-  || fail "Expected NO blank line after '### Authored' under --no_format in ${raw_snippets_file}"
+  || fail "Expected NO blank line after '### PRs Authored' under --no_format in ${raw_snippets_file}"
