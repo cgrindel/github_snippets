@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "title": "Add the foo widget",
+      "html_url": "https://github.com/cgrindel/example/pull/101",
+      "repository_url": "https://api.github.com/repos/cgrindel/example"
+    }
+  ]
+}

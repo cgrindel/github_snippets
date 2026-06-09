@@ -60,15 +60,47 @@ summary_prompt_path="$(rlocation "${summary_prompt_location}")" \
 prettier_bin="$(rlocation "${PRETTIER_BIN_RUNFILE}")" \
   || (echo >&2 "Failed to locate ${PRETTIER_BIN_RUNFILE}" && exit 1)
 
-gh_location=multitool/tools/gh/gh
-gh="$(rlocation "${gh_location}")" \
-  || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
+# Resolve the gh binary. Tests inject a stand-in via GH_BIN to stay
+# hermetic; normal runs locate the vendored multitool gh through runfiles.
+if [[ -n ${GH_BIN:-} ]]; then
+  gh="${GH_BIN}"
+else
+  gh_location=multitool/tools/gh/gh
+  gh="$(rlocation "${gh_location}")" \
+    || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
+fi
 
 # MARK - Functions
 
-search_prs() {
+# Query GitHub's search/issues endpoint, which covers both pull requests
+# and issues. The caller supplies the qualifiers (e.g. type:pr, author:...).
+#
+# The Search API enforces a low rate limit (~30 requests/minute) and a single
+# snippet run issues several searches, so retry with exponential backoff when
+# GitHub throttles us (HTTP 403/429 "rate limit"). Other failures surface
+# immediately.
+search_issues() {
   query_args_str="${*}"
-  "${gh}" api -X GET search/issues -f q="${query_args_str}"
+  local attempt=1
+  local max_attempts=5
+  local delay=15
+  local out
+  while true; do
+    if out="$("${gh}" api -X GET search/issues -f q="${query_args_str}" 2>&1)"; then
+      printf '%s' "${out}"
+      return 0
+    fi
+    if [[ ${attempt} -ge ${max_attempts} ]] \
+      || ! grep -qi "rate limit" <<<"${out}"; then
+      echo >&2 "${out}"
+      return 1
+    fi
+    echo >&2 "GitHub rate limit hit; retrying in ${delay}s" \
+      "(attempt ${attempt}/${max_attempts})."
+    sleep "${delay}"
+    delay=$((delay * 2))
+    attempt=$((attempt + 1))
+  done
 }
 
 # MARK - Process Args
@@ -170,7 +202,7 @@ end_date="$(days_after 7 "${begin_date}")"
 
 # Retrieve the closed PRs
 closed_prs_result="$(
-  search_prs "type:pr" "state:closed" "author:${author}" \
+  search_issues "type:pr" "state:closed" "author:${author}" \
     "closed:${begin_date}..${end_date}"
 )"
 closed_prs_md="$(
@@ -180,13 +212,50 @@ closed_prs_md="$(
 )"
 
 reviewed_prs_result="$(
-  search_prs "type:pr" "-author:${author}" "reviewed-by:${author}" \
+  search_issues "type:pr" "-author:${author}" "reviewed-by:${author}" \
     "updated:${begin_date}..${end_date}"
 )"
 reviewed_prs_md="$(
   echo "${reviewed_prs_result}" \
     | "${jq_bin}" -r -L "${jq_lib_dir}" \
       'import "github" as github; github::reviewed_pr_search_response_to_md '
+)"
+
+# Retrieve issues the author opened this week.
+opened_issues_result="$(
+  search_issues "type:issue" "author:${author}" \
+    "created:${begin_date}..${end_date}"
+)"
+opened_issues_md="$(
+  echo "${opened_issues_result}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
+      'import "github" as github; github::opened_issue_search_response_to_md '
+)"
+
+# Retrieve issues the author drove to closure this week. GitHub search has no
+# "closed-by" qualifier, so we approximate with issues assigned to the author
+# that were closed during the week.
+closed_issues_result="$(
+  search_issues "type:issue" "assignee:${author}" "state:closed" \
+    "closed:${begin_date}..${end_date}"
+)"
+closed_issues_md="$(
+  echo "${closed_issues_result}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
+      'import "github" as github; github::closed_issue_search_response_to_md '
+)"
+
+# Retrieve issues the author commented on this week. There is no
+# "commented-on:<date>" qualifier, so we filter by last-updated like the
+# reviewed-PRs query.
+commented_issues_result="$(
+  search_issues "type:issue" "commenter:${author}" \
+    "updated:${begin_date}..${end_date}"
+)"
+commented_issues_md="$(
+  echo "${commented_issues_result}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
+      'import "github" as github; github::commented_issue_search_response_to_md '
 )"
 
 # Assemble the activity Markdown that Claude will summarize (and that we'll
@@ -198,6 +267,12 @@ activity_md="$(
 ${closed_prs_md}
 
 ${reviewed_prs_md}
+
+${opened_issues_md}
+
+${closed_issues_md}
+
+${commented_issues_md}
 EOF
 )"
 

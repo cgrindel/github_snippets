@@ -64,7 +64,7 @@ def closed_repo_prs_to_md:
 
 def closed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | closed_repo_prs_to_md ] |
-  [ "### Authored" ] + . |
+  [ "### PRs Authored" ] + . |
   join("\n")
   ;
 
@@ -85,6 +85,42 @@ def reviewed_repo_prs_to_md:
 
 def reviewed_pr_search_response_to_md:
   [ .items | group_by(.repository_url) | .[] | reviewed_repo_prs_to_md ] |
-  [ "### Reviewed" ] + . |
+  [ "### PRs Reviewed" ] + . |
   join("\n")
+  ;
+
+# Issues
+#
+# Issues returned by the search/issues endpoint share the same shape as PRs
+# (title, html_url, repository_url), so the rendering mirrors the PR helpers.
+
+def issue_to_md:
+  "  - [\(.title)](\(.html_url))"
+  ;
+
+# Expects an array of issues that are already grouped by repository_url
+def repo_issues_to_md:
+  "- **\(.[0].repository_url | repo_title)**" as $repo |
+  map(. | issue_to_md) as $issue_mds |
+  [ $repo ] + $issue_mds |
+  join("\n")
+  ;
+
+# Renders a search response under the given Markdown heading.
+def issue_search_response_to_md($heading):
+  [ .items | group_by(.repository_url) | .[] | repo_issues_to_md ] |
+  [ $heading ] + . |
+  join("\n")
+  ;
+
+def opened_issue_search_response_to_md:
+  issue_search_response_to_md("### Issues Opened")
+  ;
+
+def closed_issue_search_response_to_md:
+  issue_search_response_to_md("### Issues Closed")
+  ;
+
+def commented_issue_search_response_to_md:
+  issue_search_response_to_md("### Issues Commented")
   ;

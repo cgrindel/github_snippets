@@ -28,16 +28,30 @@ generate_weekly_snippets_sh_location=cgrindel_github_snippets/tools/generate_wee
 generate_weekly_snippets_sh="$(rlocation "${generate_weekly_snippets_sh_location}")" \
   || (echo >&2 "Failed to locate ${generate_weekly_snippets_sh_location}" && exit 1)
 
-# MARK - Set Up Git Repo
+# MARK - Hermetic gh
 
-# Clone this repo so that we have an actual git repository for the test
-repo_dir="${PWD}/repo"
+# Inject a fake gh so the test never touches the network, GitHub auth, or
+# rate limits. The generator picks it up via the GH_BIN seam, and the fake
+# returns canned fixtures keyed off the search qualifiers.
+fake_gh_location=cgrindel_github_snippets/tests/tools_tests/fake_gh.sh
+fake_gh="$(rlocation "${fake_gh_location}")" \
+  || (echo >&2 "Failed to locate ${fake_gh_location}" && exit 1)
+export GH_BIN="${fake_gh}"
+
+# Resolve the fixtures directory through runfiles and hand it to the fake so
+# it works regardless of the runfiles layout.
+a_fixture_location=cgrindel_github_snippets/tests/tools_tests/fixtures/closed_prs.json
+a_fixture="$(rlocation "${a_fixture_location}")" \
+  || (echo >&2 "Failed to locate ${a_fixture_location}" && exit 1)
+export FAKE_GH_FIXTURES_DIR="$(dirname "${a_fixture}")"
+
+# MARK - Fake Workspace
+
+# The generator cd's into BUILD_WORKSPACE_DIRECTORY and writes snippet files
+# there. It performs no git operations, so a plain directory suffices.
+repo_dir="${PWD}/workspace"
 rm -rf "${repo_dir}"
-repo_url="https://github.com/cgrindel/github_snippets"
-git clone "${repo_url}" "${repo_dir}" 2>/dev/null
-
-# Any utilities under test need to know where the workspace directory is. In
-# this case, we are faking it out by setting it to our cloned repo directory.
+mkdir -p "${repo_dir}"
 export "BUILD_WORKSPACE_DIRECTORY=${repo_dir}"
 
 # MARK - Test Using Defaults
@@ -56,8 +70,18 @@ output="$(
     --week_with_date "2022-01-05"
 )"
 assert_match "# Week Ending 2022-01-09" "${output}"
-assert_match "https://github.com/cgrindel/bazel-doc/pull/15" "${output}"
-assert_match "https://github.com/cgrindel/gha_select_value/pull/2" "${output}"
+
+# Every activity section is rendered, with the content from its fixture.
+assert_match "### PRs Authored" "${output}"
+assert_match "https://github.com/cgrindel/example/pull/101" "${output}"
+assert_match "### PRs Reviewed" "${output}"
+assert_match "https://github.com/cgrindel/example/pull/102" "${output}"
+assert_match "### Issues Opened" "${output}"
+assert_match "https://github.com/cgrindel/example/issues/201" "${output}"
+assert_match "### Issues Closed" "${output}"
+assert_match "https://github.com/cgrindel/example/issues/202" "${output}"
+assert_match "### Issues Commented" "${output}"
+assert_match "https://github.com/cgrindel/example/issues/203" "${output}"
 
 # MARK - Test Creating a New Snippet File
 
@@ -79,18 +103,18 @@ expected_snippets_file="${snippets_dir}/snippets_2022.md"
   || fail "Expected to find snippets in created snippet file. ${expected_snippets_file}"
 
 # Sanity-check that prettier ran: it normalizes by inserting a blank line
-# between '### Authored' and the first repo bullet (the generator emits
+# between '### PRs Authored' and the first repo bullet (the generator emits
 # them with no blank line). This catches breakage in the prettier
 # toolchain wiring (e.g. after a Renovate bump of rules_js / rules_lint /
 # prettier itself) that would otherwise pass the other assertions.
 awk '
-  /^### Authored$/ {
+  /^### PRs Authored$/ {
     getline next_line
     if (next_line == "") { found = 1 }
   }
   END { exit !found }
 ' "${expected_snippets_file}" \
-  || fail "Expected prettier to insert a blank line after '### Authored' in ${expected_snippets_file}"
+  || fail "Expected prettier to insert a blank line after '### PRs Authored' in ${expected_snippets_file}"
 
 # MARK - Test Updating An Existing Snippet File
 
@@ -143,13 +167,13 @@ raw_snippets_file="${raw_snippets_dir}/snippets_2022.md"
   || fail "Expected raw snippets file to be created. ${raw_snippets_file}"
 
 # Inverse of the assertion above: with --no_format, prettier is skipped,
-# so the line right after '### Authored' should be the first repo bullet
+# so the line right after '### PRs Authored' should be the first repo bullet
 # (no blank line in between).
 awk '
-  /^### Authored$/ {
+  /^### PRs Authored$/ {
     getline next_line
     if (next_line == "") { found_blank = 1 }
   }
   END { exit found_blank }
 ' "${raw_snippets_file}" \
-  || fail "Expected NO blank line after '### Authored' under --no_format in ${raw_snippets_file}"
+  || fail "Expected NO blank line after '### PRs Authored' under --no_format in ${raw_snippets_file}"
