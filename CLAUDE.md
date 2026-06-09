@@ -38,10 +38,12 @@ bazel run //:bzlformat_missing_pkgs_test    # CI check: every package has it
 bazel run //:update_all                     # run all updatesrc fixers
 ```
 
-The `//tests/tools_tests:generate_weekly_snippets_test` test calls
-GitHub's API through `gh`, so it needs `GH_TOKEN` or `GITHUB_TOKEN` in
-the environment (or a working `gh auth status`). Those vars are passed
-through via `env_inherit` in its `BUILD.bazel`.
+The `//tests/tools_tests:generate_weekly_snippets_test` test is
+hermetic: it injects a fake `gh` (`tests/tools_tests/fake_gh.sh`) via the
+generator's `GH_BIN` seam and serves canned JSON from
+`tests/tools_tests/fixtures/`, so it needs no network or GitHub auth. When
+you add or change a search query in `generate_weekly_snippets.sh`, update
+`fake_gh.sh`'s query dispatch and the matching fixture.
 
 ## Architecture
 

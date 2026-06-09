@@ -1,8 +1,10 @@
 You are drafting a weekly status summary for a developer based on their
 GitHub activity for the past week.
 
-The "Activity" Markdown block below lists pull requests the developer
-authored and reviewed, grouped by repository. Each PR has a title and URL.
+The "Activity" Markdown block below lists the developer's GitHub activity
+for the week — pull requests they authored and reviewed, plus issues they
+opened, closed, and commented on — grouped by repository. Each entry has a
+title and URL.
 
 Your job is to produce SUMMARY SECTIONS that describe the week's work in
 human-readable terms, grouped into two categories:
