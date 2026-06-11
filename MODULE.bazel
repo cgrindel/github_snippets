@@ -9,7 +9,7 @@ bazel_dep(name = "rules_shell", version = "0.8.0")
 bazel_dep(name = "jq.bzl", version = "0.6.1")
 bazel_dep(name = "rules_multitool", version = "1.11.1")
 bazel_dep(name = "rules_claude", version = "0.1.0")
-bazel_dep(name = "aspect_rules_js", version = "3.2.1")
+bazel_dep(name = "aspect_rules_js", version = "3.2.2")
 bazel_dep(name = "aspect_rules_lint", version = "2.6.0")
 
 # rules_claude isn't published to the Bazel Central Registry, so the
