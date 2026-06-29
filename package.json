@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "prettier": "3.9.1"
+    "prettier": "3.9.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": []
