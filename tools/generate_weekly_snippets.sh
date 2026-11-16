@@ -71,8 +71,14 @@ else
 fi
 
 # Resolve curl for the EARLY API. Tests inject a stand-in via CURL_BIN;
-# normal runs use the system curl that ships with macOS.
-curl_bin="${CURL_BIN:-curl}"
+# normal runs locate the vendored multitool curl through runfiles.
+if [[ -n ${CURL_BIN:-} ]]; then
+  curl_bin="${CURL_BIN}"
+else
+  curl_location=multitool/tools/curl/curl
+  curl_bin="$(rlocation "${curl_location}")" \
+    || (echo >&2 "Failed to locate ${curl_location}" && exit 1)
+fi
 
 early_api_url="${EARLY_API_URL:-https://api.early.app/api/v4}"
 

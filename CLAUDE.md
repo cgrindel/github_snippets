@@ -80,13 +80,12 @@ Layers, top-down:
    local midnight to local midnight, converted by
    `local_midnight_to_utc_ts` in `lib/date.sh`.
 
-External `gh` and `jq` binaries are vendored through Bazel — `gh` via
+External `gh`, `curl` and `jq` binaries are vendored through Bazel — `gh`
+and `curl` (static builds from `stunnel/static-curl`) via
 `rules_multitool` (see `multitool.lock.json`), `jq` via the `jq.bzl`
 toolchain (the binary path is plumbed through the `JQ_BIN` env var and
 the `@jq_toolchains//:resolved_toolchain` toolchain). Do not assume a
-system `gh`/`jq`; always resolve through runfiles inside scripts. The one
-exception is `curl` for the EARLY API, which uses the system binary
-(override with `CURL_BIN`).
+system `gh`/`curl`/`jq`; always resolve through runfiles inside scripts.
 
 ## Conventions specific to this repo
 
