@@ -18,6 +18,7 @@ sh_binary(
         "//lib/claude:summary_prompt",
         "//lib/jq:modules",
         "@jq_toolchains//:resolved_toolchain",
+        "@multitool//tools/curl",
         "@multitool//tools/gh",
     ],
     env = {

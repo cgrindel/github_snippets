@@ -43,5 +43,41 @@
         "cpu": "x86_64"
       }
     ]
+  },
+  "curl": {
+    "binaries": [
+      {
+        "kind": "archive",
+        "url": "https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-linux-aarch64-musl-8.23.0-1.tar.xz",
+        "file": "curl",
+        "sha256": "e20f26e5b87c1883608f286f86bdabf39d3b8556e8a8e75dfe205e14bd206199",
+        "os": "linux",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-linux-x86_64-musl-8.23.0-1.tar.xz",
+        "file": "curl",
+        "sha256": "2e0c54ba696afd0df1e899e4344fa63d53d73107f9ac08173314d9be85bc76fd",
+        "os": "linux",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-macos-arm64-8.23.0-1.tar.xz",
+        "file": "curl",
+        "sha256": "dea0ecfa234f1c79f1473e19b73769a25ce517644cd1908eec7d530c419886d2",
+        "os": "macos",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "archive",
+        "url": "https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-macos-x86_64-8.23.0-1.tar.xz",
+        "file": "curl",
+        "sha256": "be645642d239a625c9f06a823ae0a62e2acb4788309435bf8d91e7b6bd197238",
+        "os": "macos",
+        "cpu": "x86_64"
+      }
+    ]
   }
 }

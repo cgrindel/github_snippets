@@ -144,3 +144,22 @@ get_year_from_date() {
   # Execute the command
   "${cmd[@]}"
 }
+
+# Converts local midnight on the given date (YYYY-MM-DD) to a UTC timestamp
+# in EARLY's format (e.g. 2026-11-09T07:00:00.000). "Local" follows the
+# machine's timezone, or TZ when set, so DST is handled by `date`.
+local_midnight_to_utc_ts() {
+  local date="${1}"
+  local epoch_secs
+  local out_format="+%Y-%m-%dT%H:%M:%S.000"
+  if [[ ${date_flavor} == "bsd" ]]; then
+    # Deliberately skip -u on the parse so the input is read as local time.
+    epoch_secs="$(
+      "${date_bin}" -j -f "%Y-%m-%d %H:%M:%S" "${date} 00:00:00" "+%s"
+    )"
+    "${date_bin}" -ju -r "${epoch_secs}" "${out_format}"
+  else
+    epoch_secs="$("${date_bin}" -d "${date} 00:00:00" "+%s")"
+    "${date_bin}" -u -d "@${epoch_secs}" "${out_format}"
+  fi
+}

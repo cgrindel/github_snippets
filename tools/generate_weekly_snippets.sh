@@ -70,6 +70,18 @@ else
     || (echo >&2 "Failed to locate ${gh_location}" && exit 1)
 fi
 
+# Resolve curl for the EARLY API. Tests inject a stand-in via CURL_BIN;
+# normal runs locate the vendored multitool curl through runfiles.
+if [[ -n ${CURL_BIN:-} ]]; then
+  curl_bin="${CURL_BIN}"
+else
+  curl_location=multitool/tools/curl/curl
+  curl_bin="$(rlocation "${curl_location}")" \
+    || (echo >&2 "Failed to locate ${curl_location}" && exit 1)
+fi
+
+early_api_url="${EARLY_API_URL:-https://api.early.app/api/v4}"
+
 # MARK - Functions
 
 # Query GitHub's search/issues endpoint, which covers both pull requests
@@ -103,6 +115,104 @@ search_issues() {
   done
 }
 
+# Prints an EARLY credential. Prefers the env var, then falls back to the
+# macOS Keychain entry (service name; tests override the tool with
+# SECURITY_BIN) created with:
+#   security add-generic-password -a "${USER}" -s <service> -w
+read_early_credential() {
+  local env_value="${1}"
+  local keychain_service="${2}"
+  if [[ -n ${env_value} ]]; then
+    printf '%s' "${env_value}"
+    return 0
+  fi
+  local security_bin="${SECURITY_BIN:-security}"
+  command -v "${security_bin}" >/dev/null 2>&1 || return 1
+  "${security_bin}" find-generic-password -s "${keychain_service}" -w \
+    2>/dev/null
+}
+
+# Calls the EARLY API with curl. Reads curl config (e.g. the auth header)
+# from stdin so secrets never appear in the process list. Fails on HTTP
+# errors.
+early_curl() {
+  "${curl_bin}" --silent --show-error --fail --config - "${@}"
+}
+
+# Fetches the EARLY time entries for the week from local midnight on
+# begin_date to local midnight on end_date (both YYYY-MM-DD) and renders them
+# as a Markdown table grouped by folder and activity. Prints nothing when no
+# time was recorded. Returns non-zero on date, credential or API errors.
+# shellcheck disable=SC2016 # jq expressions, not shell expansions
+early_time_md() {
+  local begin_date="${1}"
+  local end_date="${2}"
+  local range_start range_end
+  local api_key api_secret sign_in_config token auth_config
+  local folders_json entries_json
+
+  # errexit is off when the caller tests this function in an `if`, so every
+  # step checks its own status.
+
+  # EARLY stores UTC, so convert the local week boundaries.
+  range_start="$(local_midnight_to_utc_ts "${begin_date}")" || return 1
+  range_end="$(local_midnight_to_utc_ts "${end_date}")" || return 1
+
+  api_key="$(read_early_credential "${EARLY_API_KEY:-}" early-api-key)" \
+    || {
+      echo >&2 "No EARLY API key found (EARLY_API_KEY or Keychain" \
+        "service early-api-key)."
+      return 1
+    }
+  api_secret="$(
+    read_early_credential "${EARLY_API_SECRET:-}" early-api-secret
+  )" \
+    || {
+      echo >&2 "No EARLY API secret found (EARLY_API_SECRET or Keychain" \
+        "service early-api-secret)."
+      return 1
+    }
+
+  # Build the curl config from env so the secret never lands on a command
+  # line. The body is JSON, then quoted again as a curl config string.
+  sign_in_config="$(
+    EARLY_KEY="${api_key}" EARLY_SECRET="${api_secret}" "${jq_bin}" -nr \
+      '"header = \"Content-Type: application/json\"",
+      "data = " + ({apiKey: $ENV.EARLY_KEY, apiSecret: $ENV.EARLY_SECRET}
+        | tojson | tojson)'
+  )"
+  token="$(
+    printf '%s\n' "${sign_in_config}" \
+      | early_curl -X POST "${early_api_url}/developer/sign-in" \
+      | "${jq_bin}" -r '.token // empty'
+  )"
+  if [[ -z ${token} ]]; then
+    echo >&2 "EARLY sign-in did not return a token."
+    return 1
+  fi
+
+  # Quote the header as a curl config string, passing the token via env.
+  auth_config="$(
+    EARLY_TOKEN="${token}" "${jq_bin}" -nr \
+      '"header = " + ("Authorization: Bearer \($ENV.EARLY_TOKEN)" | tojson)'
+  )" || return 1
+  folders_json="$(
+    printf '%s\n' "${auth_config}" | early_curl "${early_api_url}/folders"
+  )" || return 1
+  entries_json="$(
+    printf '%s\n' "${auth_config}" \
+      | early_curl "${early_api_url}/time-entries/${range_start}/${range_end}"
+  )" || return 1
+
+  printf '%s' "${entries_json}" \
+    | "${jq_bin}" -r -L "${jq_lib_dir}" \
+      --argjson folders "${folders_json}" \
+      --arg range_start "${range_start}" \
+      --arg range_end "${range_end}" \
+      'import "early" as early;
+      early::time_entries_response_to_md($folders; $range_start; $range_end)'
+}
+
 # MARK - Process Args
 
 get_usage() {
@@ -133,12 +243,17 @@ Options:
                       Defaults to claude-opus-4-7.
 --no_format           Optional. Skip the prettier pass that normalizes the
                       year file after prepending the new entry.
+--no_time             Optional. Skip the EARLY time-tracking breakdown.
+                      Credentials come from EARLY_API_KEY/EARLY_API_SECRET,
+                      or the Keychain services early-api-key and
+                      early-api-secret.
 EOF
 }
 
 launch_vim="true"
 generate_summary="true"
 run_prettier="true"
+include_time="true"
 claude_model="claude-opus-4-7"
 
 args=()
@@ -170,6 +285,10 @@ while (("$#")); do
       ;;
     "--no_format")
       run_prettier="false"
+      shift 1
+      ;;
+    "--no_time")
+      include_time="false"
       shift 1
       ;;
     "--claude_model")
@@ -276,6 +395,22 @@ ${commented_issues_md}
 EOF
 )"
 
+# Retrieve the EARLY time breakdown. A failure here only drops the section;
+# it never blocks the snippet.
+time_md=""
+if [[ ${include_time} == "true" ]]; then
+  if early_md="$(early_time_md "${begin_date}" "${end_date}")"; then
+    if [[ -n ${early_md} ]]; then
+      time_md="## Time
+
+${early_md}"
+    fi
+  else
+    echo >&2 "Warning: EARLY time breakdown failed; omitting the Time" \
+      "section. Pass --no_time to skip it."
+  fi
+fi
+
 # Generate the human-readable summary sections via Claude. Fall back to an
 # activity-only entry if Claude errors or is disabled.
 summary_md=""
@@ -285,6 +420,11 @@ if [[ ${generate_summary} == "true" ]]; then
 
 ${activity_md}
 "
+  if [[ -n ${time_md} ]]; then
+    prompt="${prompt}
+${time_md}
+"
+  fi
   if claude_out="$("${claude_bin}" -p "${prompt}" --model "${claude_model}" 2>&1)"; then
     summary_md="$(printf '%s' "${claude_out}" | sed -e 's/[[:space:]]*$//')"
   else
@@ -304,6 +444,15 @@ else
   summary_block=""
 fi
 
+# The Time section, when present, follows the activity.
+if [[ -n ${time_md} ]]; then
+  time_block="
+
+${time_md}"
+else
+  time_block=""
+fi
+
 # Generate the output markdown
 week_ending_date="$(days_before 1 "${end_date}")"
 snippet_heading="# Week Ending ${week_ending_date}"
@@ -311,7 +460,7 @@ output="$(
   cat <<-EOF
 ${snippet_heading}
 
-${summary_block}${activity_md}
+${summary_block}${activity_md}${time_block}
 
 ---
 

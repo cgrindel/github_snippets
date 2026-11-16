@@ -31,5 +31,10 @@ Format requirements:
 - Plain Markdown only. No code fences. No preamble ("Here's the summary").
   No trailing commentary.
 - End the output with a single trailing newline.
+- A `## Time` block may follow the activity. It is a table of hours the
+  developer tracked this week, grouped by folder (e.g. Glydways, Open
+  Source) and activity. When present, you may mention the time split in a
+  bullet where it adds context (e.g. "Spent most of the week on dev work").
+  Do not reproduce the table and do not add a Time heading.
 
 Activity:

@@ -52,3 +52,13 @@ sh_test(
         "@cgrindel_bazel_starlib//shlib/lib:assertions",
     ],
 )
+
+sh_test(
+    name = "local_midnight_to_utc_ts_test",
+    srcs = ["local_midnight_to_utc_ts_test.sh"],
+    deps = [
+        "//lib:date",
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)

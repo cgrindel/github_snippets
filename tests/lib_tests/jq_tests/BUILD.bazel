@@ -15,3 +15,16 @@ sh_test(
         "@cgrindel_bazel_starlib//shlib/lib:assertions",
     ],
 )
+
+sh_test(
+    name = "early_test",
+    srcs = ["early_test.sh"],
+    data = [
+        "early_tests.txt",
+        "//lib/jq:modules",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+        "@cgrindel_bazel_starlib//shlib/lib:assertions",
+    ],
+)
