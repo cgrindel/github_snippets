@@ -45,9 +45,16 @@ generator's `GH_BIN` seam and serves canned JSON from
 you add or change a search query in `generate_weekly_snippets.sh`, update
 `fake_gh.sh`'s query dispatch and the matching fixture.
 
+The generator also adds a `## Time` section from the EARLY time tracker
+(https://early.app). It reads `EARLY_API_KEY`/`EARLY_API_SECRET`, falling
+back to the macOS Keychain services `early-api-key` and `early-api-secret`.
+`--no_time` skips it, and any EARLY failure only drops the section. The
+test injects `tests/tools_tests/fake_curl.sh` via the `CURL_BIN` seam and
+pins `TZ`.
+
 ## Architecture
 
-Three layers, top-down:
+Layers, top-down:
 
 1. **`tools/generate_weekly_snippets.sh`** — the orchestrator. Locates
    its dependencies via Bazel runfiles (`rlocation`), computes the week
@@ -67,11 +74,19 @@ Three layers, top-down:
    `format_pr_body` strips `Closes #N` / `Resolves #N` / `Related to #N`
    noise lines.
 
+4. **`lib/jq/early.jq`** — renders EARLY time entries as a table grouped
+   by folder, then activity (by id, since names repeat across folders).
+   EARLY timestamps are UTC without a zone marker; the week runs from
+   local midnight to local midnight, converted by
+   `local_midnight_to_utc_ts` in `lib/date.sh`.
+
 External `gh` and `jq` binaries are vendored through Bazel — `gh` via
 `rules_multitool` (see `multitool.lock.json`), `jq` via the `jq.bzl`
 toolchain (the binary path is plumbed through the `JQ_BIN` env var and
 the `@jq_toolchains//:resolved_toolchain` toolchain). Do not assume a
-system `gh`/`jq`; always resolve through runfiles inside scripts.
+system `gh`/`jq`; always resolve through runfiles inside scripts. The one
+exception is `curl` for the EARLY API, which uses the system binary
+(override with `CURL_BIN`).
 
 ## Conventions specific to this repo
 

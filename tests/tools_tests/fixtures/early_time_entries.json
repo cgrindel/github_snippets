@@ -1,0 +1,76 @@
+{
+  "timeEntries": [
+    {
+      "id": "1",
+      "activity": {
+        "id": "10",
+        "name": "Dev Work",
+        "color": "#000000",
+        "folderId": "100"
+      },
+      "duration": {
+        "startedAt": "2022-01-03T05:00:00.000",
+        "stoppedAt": "2022-01-03T09:00:00.000"
+      },
+      "note": {
+        "text": null,
+        "tags": [],
+        "mentions": []
+      }
+    },
+    {
+      "id": "2",
+      "activity": {
+        "id": "10",
+        "name": "Dev Work",
+        "color": "#000000",
+        "folderId": "100"
+      },
+      "duration": {
+        "startedAt": "2022-01-04T16:00:00.000",
+        "stoppedAt": "2022-01-04T20:00:00.000"
+      },
+      "note": {
+        "text": null,
+        "tags": [],
+        "mentions": []
+      }
+    },
+    {
+      "id": "3",
+      "activity": {
+        "id": "11",
+        "name": "Meeting",
+        "color": "#000000",
+        "folderId": "100"
+      },
+      "duration": {
+        "startedAt": "2022-01-05T16:00:00.000",
+        "stoppedAt": "2022-01-05T17:00:00.000"
+      },
+      "note": {
+        "text": null,
+        "tags": [],
+        "mentions": []
+      }
+    },
+    {
+      "id": "4",
+      "activity": {
+        "id": "20",
+        "name": "Bazel Rules",
+        "color": "#000000",
+        "folderId": "200"
+      },
+      "duration": {
+        "startedAt": "2022-01-06T16:00:00.000",
+        "stoppedAt": "2022-01-06T19:00:00.000"
+      },
+      "note": {
+        "text": null,
+        "tags": [],
+        "mentions": []
+      }
+    }
+  ]
+}

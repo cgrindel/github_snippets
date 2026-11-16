@@ -45,6 +45,20 @@ a_fixture="$(rlocation "${a_fixture_location}")" \
   || (echo >&2 "Failed to locate ${a_fixture_location}" && exit 1)
 export FAKE_GH_FIXTURES_DIR="$(dirname "${a_fixture}")"
 
+# MARK - Hermetic EARLY
+
+# Inject a fake curl for the EARLY time-tracking API. Credentials come from
+# env vars, so the generator never reads the Keychain. Pin the timezone so
+# the week boundaries convert to a known UTC range.
+fake_curl_location=cgrindel_github_snippets/tests/tools_tests/fake_curl.sh
+fake_curl="$(rlocation "${fake_curl_location}")" \
+  || (echo >&2 "Failed to locate ${fake_curl_location}" && exit 1)
+export CURL_BIN="${fake_curl}"
+export EARLY_API_KEY="fake-key"
+export EARLY_API_SECRET="fake-secret"
+export TZ="America/Phoenix"
+export FAKE_CURL_LOG="${PWD}/fake_curl.log"
+
 # MARK - Fake Workspace
 
 # The generator cd's into BUILD_WORKSPACE_DIRECTORY and writes snippet files
@@ -82,6 +96,49 @@ assert_match "### Issues Closed" "${output}"
 assert_match "https://github.com/cgrindel/example/issues/202" "${output}"
 assert_match "### Issues Commented" "${output}"
 assert_match "https://github.com/cgrindel/example/issues/203" "${output}"
+
+# The Time section renders the EARLY fixture, grouped by folder. The first
+# entry starts before the week, so only its in-week 2 hours count.
+assert_match "## Time" "${output}"
+grep -qF '| **Glydways** | **7.0** | **70%** |' <<<"${output}" \
+  || fail "Expected Glydways folder row in Time section."
+grep -qF '| Dev Work | 6.0 | 60% |' <<<"${output}" \
+  || fail "Expected Dev Work activity row in Time section."
+grep -qF '| **Total** | **10.0** | |' <<<"${output}" \
+  || fail "Expected total row in Time section."
+
+# Monday midnight in Phoenix (UTC-7) is 07:00 UTC.
+grep -qF "/time-entries/2022-01-03T07:00:00.000/2022-01-10T07:00:00.000" \
+  "${FAKE_CURL_LOG}" \
+  || fail "Expected the EARLY query to use the UTC week boundaries."
+
+# MARK - Test --no_time Skips the Time Section
+
+: >"${FAKE_CURL_LOG}"
+output="$(
+  "${generate_weekly_snippets_sh}" \
+    --no_summary \
+    --no_time \
+    --author cgrindel \
+    --week_with_date "2022-01-05"
+)"
+assert_match "### PRs Authored" "${output}"
+[[ ${output} != *"## Time"* ]] \
+  || fail "Expected no Time section with --no_time."
+[[ ! -s ${FAKE_CURL_LOG} ]] \
+  || fail "Expected no EARLY calls with --no_time."
+
+# MARK - Test EARLY Failure Omits the Time Section
+
+output="$(
+  FAKE_CURL_FAIL=1 "${generate_weekly_snippets_sh}" \
+    --no_summary \
+    --author cgrindel \
+    --week_with_date "2022-01-05"
+)"
+assert_match "### PRs Authored" "${output}"
+[[ ${output} != *"## Time"* ]] \
+  || fail "Expected no Time section when EARLY fails."
 
 # MARK - Test Creating a New Snippet File
 

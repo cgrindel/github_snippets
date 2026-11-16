@@ -7,6 +7,7 @@ sh_test(
     name = "generate_weekly_snippets_test",
     srcs = ["generate_weekly_snippets_test.sh"],
     data = [
+        "fake_curl.sh",
         "fake_gh.sh",
         "//tools:generate_weekly_snippets",
         "@jq_toolchains//:resolved_toolchain",

@@ -1,0 +1,48 @@
+# MARK - early_ts_to_secs
+
+import "early" as early; early::early_ts_to_secs
+"2026-11-09T07:00:00.000"
+1794207600
+
+# MARK - fmt_hours
+
+import "early" as early; early::fmt_hours
+9
+"9.0"
+
+import "early" as early; early::fmt_hours
+20.06
+"20.1"
+
+import "early" as early; early::fmt_hours
+0.04
+"0.0"
+
+# MARK - entry_hours
+
+# Inside the window
+import "early" as early; early::entry_hours(0; 1794300000)
+{"duration":{"startedAt":"2026-11-09T08:00:00.000","stoppedAt":"2026-11-09T09:30:00.000"}}
+1.5
+
+# Clipped at the start of the window
+import "early" as early; early::entry_hours(1794207600; 1794300000)
+{"duration":{"startedAt":"2026-11-09T06:00:00.000","stoppedAt":"2026-11-09T08:00:00.000"}}
+1
+
+# Entirely outside the window
+import "early" as early; early::entry_hours(1794207600; 1794300000)
+{"duration":{"startedAt":"2026-11-09T05:00:00.000","stoppedAt":"2026-11-09T06:00:00.000"}}
+0
+
+# MARK - time_entries_response_to_md
+
+# No entries
+import "early" as early; early::time_entries_response_to_md({"folders":[{"id":"f1","name":"Glydways"},{"id":"f2","name":"Open Source"}]}; "2026-11-09T07:00:00.000"; "2026-11-16T07:00:00.000")
+{"timeEntries":[]}
+""
+
+# Groups by folder, then by activity id; sorts by hours; unknown folder is Other
+import "early" as early; early::time_entries_response_to_md({"folders":[{"id":"f1","name":"Glydways"},{"id":"f2","name":"Open Source"}]}; "2026-11-09T07:00:00.000"; "2026-11-16T07:00:00.000")
+{"timeEntries":[{"activity":{"id":"a1","name":"Dev Work","folderId":"f1"},"duration":{"startedAt":"2026-11-10T15:00:00.000","stoppedAt":"2026-11-10T19:00:00.000"}},{"activity":{"id":"a2","name":"Admin","folderId":"f1"},"duration":{"startedAt":"2026-11-10T19:00:00.000","stoppedAt":"2026-11-10T20:00:00.000"}},{"activity":{"id":"a1","name":"Dev Work","folderId":"f1"},"duration":{"startedAt":"2026-11-11T15:00:00.000","stoppedAt":"2026-11-11T17:00:00.000"}},{"activity":{"id":"a3","name":"Admin","folderId":"f2"},"duration":{"startedAt":"2026-11-12T15:00:00.000","stoppedAt":"2026-11-12T17:00:00.000"}},{"activity":{"id":"a4","name":"Errands","folderId":"gone"},"duration":{"startedAt":"2026-11-13T15:00:00.000","stoppedAt":"2026-11-13T16:00:00.000"}}]}
+"| Folder / Activity | Hours | % |\n| --- | ---: | ---: |\n| **Glydways** | **7.0** | **70%** |\n| Dev Work | 6.0 | 60% |\n| Admin | 1.0 | 10% |\n| **Open Source** | **2.0** | **20%** |\n| Admin | 2.0 | 20% |\n| **Other** | **1.0** | **10%** |\n| Errands | 1.0 | 10% |\n| **Total** | **10.0** | |"
