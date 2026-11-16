@@ -116,7 +116,8 @@ search_issues() {
 }
 
 # Prints an EARLY credential. Prefers the env var, then falls back to the
-# macOS Keychain entry (service name) created with:
+# macOS Keychain entry (service name; tests override the tool with
+# SECURITY_BIN) created with:
 #   security add-generic-password -a "${USER}" -s <service> -w
 read_early_credential() {
   local env_value="${1}"
@@ -125,8 +126,10 @@ read_early_credential() {
     printf '%s' "${env_value}"
     return 0
   fi
-  command -v security >/dev/null 2>&1 || return 1
-  security find-generic-password -s "${keychain_service}" -w 2>/dev/null
+  local security_bin="${SECURITY_BIN:-security}"
+  command -v "${security_bin}" >/dev/null 2>&1 || return 1
+  "${security_bin}" find-generic-password -s "${keychain_service}" -w \
+    2>/dev/null
 }
 
 # Calls the EARLY API with curl. Reads curl config (e.g. the auth header)
@@ -136,15 +139,24 @@ early_curl() {
   "${curl_bin}" --silent --show-error --fail --config - "${@}"
 }
 
-# Fetches the EARLY time entries for [range_start, range_end) and renders
-# them as a Markdown table grouped by folder and activity. Prints nothing
-# when no time was recorded. Returns non-zero on missing credentials or API
-# errors.
+# Fetches the EARLY time entries for the week from local midnight on
+# begin_date to local midnight on end_date (both YYYY-MM-DD) and renders them
+# as a Markdown table grouped by folder and activity. Prints nothing when no
+# time was recorded. Returns non-zero on date, credential or API errors.
 # shellcheck disable=SC2016 # jq expressions, not shell expansions
 early_time_md() {
-  local range_start="${1}"
-  local range_end="${2}"
-  local api_key api_secret sign_in_config token folders_json entries_json
+  local begin_date="${1}"
+  local end_date="${2}"
+  local range_start range_end
+  local api_key api_secret sign_in_config token auth_config
+  local folders_json entries_json
+
+  # errexit is off when the caller tests this function in an `if`, so every
+  # step checks its own status.
+
+  # EARLY stores UTC, so convert the local week boundaries.
+  range_start="$(local_midnight_to_utc_ts "${begin_date}")" || return 1
+  range_end="$(local_midnight_to_utc_ts "${end_date}")" || return 1
 
   api_key="$(read_early_credential "${EARLY_API_KEY:-}" early-api-key)" \
     || {
@@ -160,9 +172,6 @@ early_time_md() {
         "service early-api-secret)."
       return 1
     }
-
-  # errexit is off when the caller tests this function in an `if`, so every
-  # step checks its own status.
 
   # Build the curl config from env so the secret never lands on a command
   # line. The body is JSON, then quoted again as a curl config string.
@@ -182,7 +191,11 @@ early_time_md() {
     return 1
   fi
 
-  local auth_config="header = \"Authorization: Bearer ${token}\""
+  # Quote the header as a curl config string, passing the token via env.
+  auth_config="$(
+    EARLY_TOKEN="${token}" "${jq_bin}" -nr \
+      '"header = " + ("Authorization: Bearer \($ENV.EARLY_TOKEN)" | tojson)'
+  )" || return 1
   folders_json="$(
     printf '%s\n' "${auth_config}" | early_curl "${early_api_url}/folders"
   )" || return 1
@@ -382,14 +395,11 @@ ${commented_issues_md}
 EOF
 )"
 
-# Retrieve the EARLY time breakdown. The week runs from local midnight on
-# begin_date to local midnight on end_date; EARLY stores UTC, so convert.
-# A failure here only drops the section; it never blocks the snippet.
+# Retrieve the EARLY time breakdown. A failure here only drops the section;
+# it never blocks the snippet.
 time_md=""
 if [[ ${include_time} == "true" ]]; then
-  time_range_start="$(local_midnight_to_utc_ts "${begin_date}")"
-  time_range_end="$(local_midnight_to_utc_ts "${end_date}")"
-  if early_md="$(early_time_md "${time_range_start}" "${time_range_end}")"; then
+  if early_md="$(early_time_md "${begin_date}" "${end_date}")"; then
     if [[ -n ${early_md} ]]; then
       time_md="## Time
 

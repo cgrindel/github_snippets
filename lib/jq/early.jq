@@ -40,13 +40,13 @@ def entry_hours($start_secs; $end_secs):
 #
 # Emits an empty string when no time falls inside the window.
 def time_entries_response_to_md($folders; $range_start; $range_end):
-  ($folders.folders | map({key: .id, value: .name}) | from_entries)
-    as $folder_names |
+  ($folders.folders | map({key: (.id | tostring), value: .name})
+    | from_entries) as $folder_names |
   ($range_start | early_ts_to_secs) as $start_secs |
   ($range_end | early_ts_to_secs) as $end_secs |
   [ .timeEntries[] |
     {
-      folder: ($folder_names[.activity.folderId // ""] // "Other"),
+      folder: ($folder_names[.activity.folderId // "" | tostring] // "Other"),
       activity_id: .activity.id,
       activity: .activity.name,
       hours: entry_hours($start_secs; $end_secs)
@@ -70,7 +70,8 @@ def time_entries_response_to_md($folders; $range_start; $range_end):
       "| Folder / Activity | Hours | % |",
       "| --- | ---: | ---: |",
       ( .[] |
-        "| **\(.name)** | **\(.hours | fmt_hours)** | **\(.hours | fmt_pct($total))** |",
+        "| **\(.name)** | **\(.hours | fmt_hours)** " +
+          "| **\(.hours | fmt_pct($total))** |",
         ( .activities[] |
           "| \(.name) | \(.hours | fmt_hours) | \(.hours | fmt_pct($total)) |"
         )

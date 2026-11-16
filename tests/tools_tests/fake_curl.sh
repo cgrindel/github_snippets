@@ -13,7 +13,8 @@
 
 set -o errexit -o nounset -o pipefail
 
-fixtures_dir="${FAKE_GH_FIXTURES_DIR:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/fixtures" && pwd)"}"
+default_fixtures_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/fixtures" && pwd)"
+fixtures_dir="${FAKE_GH_FIXTURES_DIR:-"${default_fixtures_dir}"}"
 
 # The generator passes headers and the body as curl config on stdin.
 config="$(cat)"

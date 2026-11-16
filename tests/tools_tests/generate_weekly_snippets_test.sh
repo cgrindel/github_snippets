@@ -130,15 +130,37 @@ assert_match "### PRs Authored" "${output}"
 
 # MARK - Test EARLY Failure Omits the Time Section
 
+stderr_file="${PWD}/stderr.log"
 output="$(
   FAKE_CURL_FAIL=1 "${generate_weekly_snippets_sh}" \
     --no_summary \
     --author cgrindel \
-    --week_with_date "2022-01-05"
+    --week_with_date "2022-01-05" 2>"${stderr_file}"
 )"
 assert_match "### PRs Authored" "${output}"
 [[ ${output} != *"## Time"* ]] \
   || fail "Expected no Time section when EARLY fails."
+grep -qF "EARLY time breakdown failed" "${stderr_file}" \
+  || fail "Expected a warning on stderr when EARLY fails."
+
+# MARK - Test Missing Credentials Omit the Time Section
+
+# Stub the Keychain tool so the test never reads the real Keychain.
+: >"${FAKE_CURL_LOG}"
+output="$(
+  EARLY_API_KEY="" EARLY_API_SECRET="" SECURITY_BIN=false \
+    "${generate_weekly_snippets_sh}" \
+    --no_summary \
+    --author cgrindel \
+    --week_with_date "2022-01-05" 2>"${stderr_file}"
+)"
+assert_match "### PRs Authored" "${output}"
+[[ ${output} != *"## Time"* ]] \
+  || fail "Expected no Time section without credentials."
+grep -qF "No EARLY API key found" "${stderr_file}" \
+  || fail "Expected a missing-credential message on stderr."
+[[ ! -s ${FAKE_CURL_LOG} ]] \
+  || fail "Expected no EARLY calls without credentials."
 
 # MARK - Test Creating a New Snippet File
 

@@ -49,8 +49,8 @@ The generator also adds a `## Time` section from the EARLY time tracker
 (https://early.app). It reads `EARLY_API_KEY`/`EARLY_API_SECRET`, falling
 back to the macOS Keychain services `early-api-key` and `early-api-secret`.
 `--no_time` skips it, and any EARLY failure only drops the section. The
-test injects `tests/tools_tests/fake_curl.sh` via the `CURL_BIN` seam and
-pins `TZ`.
+test injects `tests/tools_tests/fake_curl.sh` via the `CURL_BIN` seam,
+stubs the Keychain with `SECURITY_BIN`, and pins `TZ`.
 
 ## Architecture
 
