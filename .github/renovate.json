@@ -3,9 +3,8 @@
   "extends": ["github>cgrindel/renovate_presets"],
   "packageRules": [
     {
-      "description": "Group Bazel module updates so MODULE.bazel.lock is regenerated once per PR",
+      "description": "Group Bazel module updates so MODULE.bazel.lock is regenerated once per batch of updates. Majors still land in their own group PR (separateMajorMinor).",
       "matchManagers": ["bazel-module"],
-      "matchUpdateTypes": ["minor", "patch"],
       "groupName": "bazel modules"
     }
   ]
