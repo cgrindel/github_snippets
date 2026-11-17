@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>cgrindel/renovate_presets"]
+  "extends": ["github>cgrindel/renovate_presets"],
+  "packageRules": [
+    {
+      "description": "Group Bazel module updates so MODULE.bazel.lock is regenerated once per PR",
+      "matchManagers": ["bazel-module"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "bazel modules"
+    }
+  ]
 }
